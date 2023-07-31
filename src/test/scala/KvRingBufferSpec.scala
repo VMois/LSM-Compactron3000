@@ -117,21 +117,25 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
 
             dut.io.deq.bits.expect(0xB.U)
+            dut.io.deq.valid.expect(true.B)
             dut.io.isOutputKey.expect(true.B)
             dut.io.lastOutput.expect(false.B)
             dut.clock.step()
 
             dut.io.deq.bits.expect(0xC.U)
+            dut.io.deq.valid.expect(true.B)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(false.B)
             dut.clock.step()
 
             dut.io.deq.bits.expect(0xD.U)
+            dut.io.deq.valid.expect(true.B)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(false.B)
             dut.clock.step()
 
             dut.io.deq.bits.expect(0xE.U)
+            dut.io.deq.valid.expect(true.B)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(true.B)
             dut.clock.step()
