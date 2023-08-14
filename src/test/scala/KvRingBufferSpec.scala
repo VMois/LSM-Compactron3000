@@ -337,4 +337,189 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.deq.valid.expect(false.B)
         }
     }
+
+    "Should wait until 'ready' asserted to provide next Key chunk" in {
+        test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // Default values for all signals
+            dut.io.enq.bits.poke(0.U)
+            dut.io.enq.valid.poke(false.B)
+            dut.io.deq.ready.poke(false.B)
+            dut.io.lastInput.poke(false.B)
+            dut.io.isInputKey.poke(false.B)
+            dut.io.outputKeyOnly.poke(false.B)
+            dut.clock.step()
+
+            // Write KV pair
+            // Write key
+            dut.io.enq.ready.expect(true.B)
+            dut.io.enq.bits.poke(0xA.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.enq.bits.poke(0xB.U)
+            dut.clock.step()
+
+            // Write value
+            dut.io.isInputKey.poke(false.B)
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xC.U)
+            dut.clock.step()
+            dut.io.enq.valid.poke(false.B)
+
+            // Reading key with delay
+            dut.io.deq.ready.poke(false.B)
+            dut.io.outputKeyOnly.poke(true.B)
+
+            while (dut.io.deq.valid.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.ready.poke(true.B)
+            dut.clock.step()
+
+            dut.io.deq.ready.poke(false.B)
+            dut.io.deq.bits.expect(0xB.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xB.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.ready.poke(true.B)
+
+            dut.clock.step()
+
+            dut.io.deq.valid.expect(false.B)
+            dut.io.empty.expect(true.B)
+            dut.io.full.expect(false.B)
+        }
+    }
+
+    "Should wait until 'ready' asserted to provide next Key or Value chunk" in {
+        test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // Default values for all signals
+            dut.io.enq.bits.poke(0.U)
+            dut.io.enq.valid.poke(false.B)
+            dut.io.deq.ready.poke(false.B)
+            dut.io.lastInput.poke(false.B)
+            dut.io.isInputKey.poke(false.B)
+            dut.io.outputKeyOnly.poke(false.B)
+            dut.clock.step()
+
+            // Write KV pair
+            // Write key
+            dut.io.enq.ready.expect(true.B)
+            dut.io.enq.bits.poke(0xA.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.enq.bits.poke(0xB.U)
+            dut.clock.step()
+
+            // Write value
+            dut.io.isInputKey.poke(false.B)
+            dut.io.enq.bits.poke(0xC.U)
+            dut.clock.step()
+
+            dut.io.isInputKey.poke(false.B)
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xD.U)
+            dut.clock.step()
+
+            dut.io.enq.valid.poke(false.B)
+
+            // Reading KV pair with delay
+            dut.io.deq.ready.poke(false.B)
+            dut.io.outputKeyOnly.poke(false.B)
+
+            while (dut.io.deq.valid.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.ready.poke(true.B)
+            dut.clock.step()
+
+            dut.io.deq.ready.poke(false.B)
+            dut.io.deq.bits.expect(0xB.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xB.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.ready.poke(true.B)
+            dut.clock.step()
+
+            // Check if first value chunk is kept until 'ready' asserted
+            dut.io.deq.ready.poke(false.B)
+            dut.io.deq.bits.expect(0xC.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xC.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xC.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.ready.poke(true.B)  
+            dut.clock.step()
+
+            // Check if second value chunk is kept until 'ready' asserted
+            dut.io.deq.ready.poke(false.B)
+            dut.io.deq.bits.expect(0xD.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xD.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.ready.poke(true.B)
+            dut.io.deq.bits.expect(0xD.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+            
+            dut.io.deq.valid.expect(false.B)
+            dut.io.empty.expect(true.B)
+            dut.io.full.expect(false.B)
+        }
+    }
 }

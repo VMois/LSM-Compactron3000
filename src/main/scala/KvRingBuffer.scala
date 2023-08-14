@@ -87,7 +87,10 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     val fullReg = RegInit(false.B)
     val lastInput = RegInit(false.B)
 
-    val requestKeyLen :: requestValueLen :: outputReadKeyLen :: outputReadValueLen :: outputReadKey :: readLastKeyChunk:: outputReadValue :: readLastValueChunk :: Nil = Enum(8)
+    // Output states
+    val requestKeyLen :: requestValueLen :: outputReadKeyLen :: outputReadValueLen :: outputReadKey :: waitForReadKey :: readLastKeyChunk :: waitForReadLastKeyChunk :: outputReadValue :: waitForReadValue :: readLastValueChunk :: waitForReadLastValueChunk :: Nil = Enum(12)
+
+    // Input states
     val writeData :: inputSaveKeyLen :: inputSaveValueLen :: Nil = Enum(3)
 
     val inputStateReg = RegInit(writeData)
@@ -135,6 +138,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
 
     val readFullPtr = readPtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + readValueChunkPtr + readKeyChunkPtr
     val data = mem.read(readFullPtr)
+    val shadowReg = RegInit(0.U(busWidth.W))
 
     switch(outputStateReg) {
         is(requestKeyLen) { 
@@ -153,6 +157,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         is(outputReadKeyLen) {
             keyLen := data
 
+            // request first chunk of a Key
             readKeyChunkPtr := 0.U
             readValueChunkPtr := metadataAddressOffset.U
             outputStateReg := outputReadValueLen
@@ -162,11 +167,13 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
             valueLen := data
 
             when(keyLen === 1.U) {
+                // request first chunk of a Value
                 readValueChunkPtr := 0.U
                 readKeyChunkPtr := (metadataAddressOffset + keyAddressOffset).U
+
                 outputStateReg := readLastKeyChunk
             } otherwise {
-                // request 2nd chunk of a key
+                // request 2nd chunk of a Key
                 readKeyChunkPtr := 1.U
                 outputStateReg := outputReadKey
             }
@@ -183,6 +190,24 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
                     readKeyChunkPtr := readKeyChunkPtr + 1.U
                 }
             }
+            .otherwise {
+                shadowReg := data
+                outputStateReg := waitForReadKey
+            }
+        }
+
+        is(waitForReadKey) {
+            when(io.deq.ready) {
+                when (readKeyChunkPtr === keyLen - 1.U) {
+                    outputStateReg := readLastKeyChunk
+                    emptyReg := nextRead === writePtr
+                    readValueChunkPtr := 0.U
+                    readKeyChunkPtr := (metadataAddressOffset + keyAddressOffset).U
+                } otherwise {
+                    outputStateReg := outputReadKey
+                    readKeyChunkPtr := readKeyChunkPtr + 1.U
+                } 
+            }
         }
 
         is(readLastKeyChunk) {
@@ -197,10 +222,43 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
                         readValueChunkPtr := 1.U
                     }
                 }
+            }.otherwise {
+                shadowReg := data
+                outputStateReg := waitForReadLastKeyChunk
+            }
+        }
+
+        is(waitForReadLastKeyChunk) {
+            when(io.deq.ready) {
+                when(io.outputKeyOnly) {
+                     outputStateReg := requestKeyLen
+                } otherwise {
+                    when(valueLen === 1.U) {
+                        outputStateReg := readLastValueChunk
+                    } otherwise {
+                        outputStateReg := outputReadValue
+                        readValueChunkPtr := 1.U
+                    }
+                } 
             }
         }
 
         is(outputReadValue) {
+            when(io.deq.ready) {
+                when(readValueChunkPtr === valueLen - 1.U) {
+                    outputStateReg := readLastValueChunk
+                    emptyReg := nextRead === writePtr
+                } otherwise {
+                    readValueChunkPtr := readValueChunkPtr + 1.U
+                }
+            }
+            .otherwise {
+                shadowReg := data
+                outputStateReg := waitForReadValue
+            }
+        }
+
+        is(waitForReadValue) {
             when(io.deq.ready) {
                 when(readValueChunkPtr === valueLen - 1.U) {
                     outputStateReg := readLastValueChunk
@@ -215,14 +273,24 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
             when(io.deq.ready) {
                 outputStateReg := requestKeyLen
             }
+            .otherwise {
+                shadowReg := data
+                outputStateReg := waitForReadLastValueChunk
+            }
+        }
+
+        is(waitForReadLastValueChunk) {
+            when(io.deq.ready) {
+                outputStateReg := requestKeyLen
+            }
         }
     }
 
     io.enq.ready := (inputStateReg === writeData) && !fullReg
-    io.deq.valid := outputStateReg === outputReadKey || outputStateReg === readLastKeyChunk || outputStateReg === outputReadValue || outputStateReg === readLastValueChunk
-    io.deq.bits := data
-    io.isOutputKey := outputStateReg === outputReadKey || outputStateReg === readLastKeyChunk
-    io.lastOutput := outputStateReg === readLastValueChunk || (outputStateReg === readLastKeyChunk && io.outputKeyOnly)
+    io.deq.valid := outputStateReg === outputReadKey || outputStateReg === readLastKeyChunk || outputStateReg === waitForReadKey || outputStateReg === waitForReadLastKeyChunk || outputStateReg === outputReadValue || outputStateReg === readLastValueChunk || outputStateReg === waitForReadValue || outputStateReg === waitForReadLastValueChunk
+    io.deq.bits := Mux(outputStateReg === waitForReadKey || outputStateReg === waitForReadLastKeyChunk || outputStateReg === waitForReadValue || outputStateReg === waitForReadLastValueChunk, shadowReg, data)
+    io.isOutputKey := outputStateReg === outputReadKey || outputStateReg === readLastKeyChunk || outputStateReg === waitForReadKey || outputStateReg === waitForReadLastKeyChunk
+    io.lastOutput := (outputStateReg === readLastValueChunk || outputStateReg === waitForReadLastValueChunk) || ((outputStateReg === readLastKeyChunk || outputStateReg === waitForReadLastKeyChunk) && io.outputKeyOnly)
     io.empty := emptyReg
     io.full := fullReg
 }
