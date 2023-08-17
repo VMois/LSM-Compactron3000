@@ -16,6 +16,9 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
 
 
 /** A class for KV transfer module. 
+ *  This module is used to transfer KV pairs to Comparator module when requested.
+ *  The module supports following commands:
+ *      01: Transfer a chunk of Key from each buffer, one-by-one to output.
  *
  *  @param busWidth, the number of bits that can be read from memory at once.
  *  @param numberOfBuffers, the number of buffers that will be connected to the KV transfer module.
