@@ -34,6 +34,10 @@ Memory blocks in FPGAs are usually called **BRAM** (Block RAM). There is a disti
 
 In Chisel3, you can find details about how memory is implemented from [their docs](https://www.chisel-lang.org/chisel3/docs/explanations/memories.html).
 
+### How tombstones are implemented in LSM KV stores?
+
+When KV pair is removed, a special marker *tombstone* is added. The implementation of a tombstone depends on the LSM KV store. What is useful for us is that in case of merge if most recent KV pair is a tombstone it *can* be removed or not. It depends on the implementation. In our case, it seems not removing tombstone record is a better option that does not require any changes to the compaction process.
+
 ## Resources
 
 - [FPGA code samples for different interfaces written in Chisel2](https://github.com/maltanar/fpga-tidbits)
