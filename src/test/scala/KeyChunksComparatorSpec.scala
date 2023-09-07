@@ -34,6 +34,7 @@ class KeyChunksComparatorSpec extends AnyFreeSpec with ChiselScalatestTester {
                 (0xD, 0xA, 0xA, 0xA, "b1101", "b0000", "b0101", false, true),
                 (0xA, 0xA, 0xA, 0xA, "b1111", "b0000", "b1111", false, true),
                 (0xA, 0xA, 0xA, 0xA, "b1011", "b0100", "b1011", false, true),
+                (0xA, 0xB, 0xA, 0xC, "b1110", "b0100", "b1010", false, true),
             )
 
             for ((in3, in2, in1, in0, maskIn, lastChunks, maskOut, expectedWinner, shouldLoadChunks) <- testCases) {
