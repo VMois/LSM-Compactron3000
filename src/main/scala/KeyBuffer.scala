@@ -10,6 +10,7 @@ class KeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
 
     val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
     val incrWritePtr = Input(Bool())
+    val clearBuffer = Input(Bool())
 
     val bufferOutputSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
 }
@@ -55,7 +56,7 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
     val readFullPtr = readPtr * numberOfBuffers.U + bufferOutputSelect
     val writeFullPtr = writePtr * numberOfBuffers.U + io.bufferInputSelect
 
-    when (io.enq.valid && !fullReg) {
+    when (io.enq.valid && !fullReg && !io.clearBuffer) {
         mem.write(writeFullPtr, io.enq.bits)
         fullReg := nextWrite === readPtr && io.incrWritePtr
 
@@ -66,11 +67,20 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
         }
     }
 
+    when (io.clearBuffer) {
+        stateReg := idle
+        emptyReg := true.B
+        fullReg := false.B
+        writePtr := 0.U
+        readPtr := 0.U
+        bufferOutputSelect := 0.U
+    }
+
     val data = mem.read(readFullPtr)
 
     switch(stateReg) {
         is(idle) {
-            when(!emptyReg) {
+            when(!emptyReg && !io.clearBuffer) {
                 stateReg := valid
                 fullReg := false.B
                 emptyReg := nextRead === writePtr && shouldIncreaseReadPtr
@@ -79,45 +89,51 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
             }
         }
         is(valid) {
-            when(io.deq.ready) {
-                when(!emptyReg) {
-                    stateReg := valid
-                    fullReg := false.B
-                    emptyReg := nextRead === writePtr && shouldIncreaseReadPtr
-                    incrRead := shouldIncreaseReadPtr
-                    bufferOutputSelect := bufferOutputSelect + 1.U
+            when (!io.clearBuffer) {
+                when(io.deq.ready) {
+                    when(!emptyReg) {
+                        stateReg := valid
+                        fullReg := false.B
+                        emptyReg := nextRead === writePtr && shouldIncreaseReadPtr
+                        incrRead := shouldIncreaseReadPtr
+                        bufferOutputSelect := bufferOutputSelect + 1.U
+                    } otherwise {
+                        bufferOutputSelect := 0.U
+                        stateReg := idle
+                    }
                 } otherwise {
-                    bufferOutputSelect := 0.U
-                    stateReg := idle
+                    shadowReg := data
+                    stateReg := waitForTransfer
                 }
-            } otherwise {
-                shadowReg := data
-                stateReg := waitForTransfer
             }
         }
         is(waitForTransfer) {
-            when(io.deq.ready) {
-                when(!emptyReg) {
-                    stateReg := valid
-                    fullReg := false.B
-                    emptyReg := nextRead === writePtr && (bufferOutputSelect === (numberOfBuffers-1).U)
-                    incrRead := shouldIncreaseReadPtr
-                    bufferOutputSelect := bufferOutputSelect + 1.U
-                } otherwise {
-                    bufferOutputSelect := 0.U
-                    stateReg := idle
+            when (!io.clearBuffer) {
+                when(io.deq.ready) {
+                    when(!emptyReg) {
+                        stateReg := valid
+                        fullReg := false.B
+                        emptyReg := nextRead === writePtr && (bufferOutputSelect === (numberOfBuffers-1).U)
+                        incrRead := shouldIncreaseReadPtr
+                        bufferOutputSelect := bufferOutputSelect + 1.U
+                    } otherwise {
+                        bufferOutputSelect := 0.U
+                        stateReg := idle
+                    }
                 }
             }
         }
     }
 
     io.deq.bits := Mux(stateReg === valid, data, shadowReg)
-    io.enq.ready := !fullReg
+
+    // both enq and clearBuffer are driven by the same module, otherwise, it creates unpredictable behavior
+    io.enq.ready := !fullReg && ~io.clearBuffer
     io.deq.valid := stateReg === valid || stateReg === waitForTransfer
 
-    // TODO: this is a hack to output the correct buffer select value
-    //       the reason is that the "bufferOutputSelect" register 
-    //       will contain the value from the current cycle but the valid data will be from previous.
+    // this is a hack to output the correct buffer select value
+    // the reason is that the "bufferOutputSelect" register 
+    // will contain the value from the current cycle but the valid data will be from previous.
     io.bufferOutputSelect := bufferOutputSelect - 1.U
 }
 
