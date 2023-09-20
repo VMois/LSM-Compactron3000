@@ -38,6 +38,39 @@ In Chisel3, you can find details about how memory is implemented from [their doc
 
 When KV pair is removed, a special marker *tombstone* is added. The implementation of a tombstone depends on the LSM KV store. What is useful for us is that in case of merge if most recent KV pair is a tombstone it *can* be removed or not. It depends on the implementation. In our case, it seems not removing tombstone record is a better option that does not require any changes to the compaction process.
 
+### The amount of BRAM memory required
+
+The amount required of BRAM memory can be adjusted depending on the needs and the hardware used. The BRAM usage for this design is described in the table below.
+
+| Module name    | BRAM per module      | Total of modules       | Total BRAM required |
+|----------------|----------------------|------------------------|---------------------|
+| KV Ring Buffer | 1 x BRAM, write/read | 5 (4 inputs, 1 output) | 5 x BRAM modules    |
+| Key Buffer     | 1 x BRAM, write/read | 1                      | 1 x BRAM module     |
+
+The memory size depends on maximum Key-Value (KV) pair sizes. The Teng Zhang et. al. paper proposed maximum key size of 2KB, maximum value size of 4KB, and metadata size of 2KB. In total, a single KV pair occupied 8KB of space. The assumed memory sizes from Teng Zhang et. al. paper for each module.
+
+| Module name      | Memory size               | Memory bus width  | Notes |
+|------------------|---------------------------|-------------------|-------|
+| KV Ring Buffer   | 32 KV pairs x 8KB = 256KB | 64 bits (8 bytes) | Memory is noted in the paper, bus width isassumed from a context |
+| Key Buffer       | 4 buffers x 2KB = 8KB     | 64 bits (8 bytes) | Memory and bus width are assumed |
+| KV Output buffer | 32 KV pairs x 8KB = 256KB | 64 bits (8 bytes) | Assumed the same as KV Ring Buffer |
+
+The values assumed from the paper require high-end FPGA. This design is adjusted to fit into a lower-end FPGA, particulary, *Zybo Zynq-7000*. 
+
+[Zybo Zynq-7000](https://digilent.com/reference/programmable-logic/zybo/start) has 240KB (1920Kb) of BRAM memory. Each BRAM block has 36Kb of memory that can be further split into 2 x 18Kb. The reference for the board can be found [here](https://docs.xilinx.com/v/u/en-US/ds190-Zynq-7000-Overview). 
+
+For on-device tests, let's assume that maximum key size is **32 bytes** (256b, 32 ASCII characters). The maximum value size is **192 bytes** (1536b). The total size of KV pair is **224 bytes** (1792b). 32 bytes are reserved for metadata. Making the total size of KV pair **256 bytes** (2048b).
+
+The bus width is 8 bytes (64b). In case if 8-byte bus width occupies too much space on the FPGA, it can be reduced to 4 bytes (32b).
+
+The proposed memory sizes are described in the table below.
+
+| Module name      | Memory size                       | Notes |
+|------------------|-----------------------------------|-------|
+| KV Ring Buffer   | 18 KV pairs x 256B = 4.5KB = 36Kb | Using whole single BRAM module |
+| Key Buffer       | 4 x 32B = 128B                    | Still occupies a single BRAM module |
+| KV Output buffer | 18 KV pairs x 256B = 4.5KB = 36Kb | The same as KV Ring Buffer |
+
 ## Resources
 
 - [FPGA code samples for different interfaces written in Chisel2](https://github.com/maltanar/fpga-tidbits)
