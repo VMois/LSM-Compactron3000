@@ -7,8 +7,21 @@ import chisel3.experimental.BundleLiterals._
 
 
 class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
-    "Should be empty when constructed" in {
-        test(new KVRingBuffer(4)) { dut =>
+
+    val setDefaultValues = (dut: KVRingBuffer) => {
+        dut.io.enq.bits.poke(0.U)
+        dut.io.enq.valid.poke(false.B)
+        dut.io.deq.ready.poke(false.B)
+        dut.io.lastInput.poke(false.B)
+        dut.io.isInputKey.poke(false.B)
+        dut.io.outputKeyOnly.poke(false.B)
+    }
+
+    "Check default output values" in {
+        test(new KVRingBuffer(4, busWidth = 4, keySize = 8, valueSize = 8, metadataSize = 8)) { dut =>
+            setDefaultValues(dut)
+            dut.io.enq.ready.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
             dut.io.empty.expect(true.B)
             dut.io.full.expect(false.B)
         }
@@ -16,13 +29,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should be not ready when full" in {
         test(new KVRingBuffer(2, busWidth = 4, keySize = 8, valueSize = 8, metadataSize = 8)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
-            dut.io.full.expect(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write KV pair 1
@@ -61,12 +68,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should put a single KV value and read it back" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write a key
@@ -148,12 +150,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should read only key" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write a key
@@ -213,13 +210,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should write two KV pairs and read one back" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
-            dut.io.outputKeyOnly.poke(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write KV pair 1
@@ -275,13 +266,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should move to read the next KV pair" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
-            dut.io.outputKeyOnly.poke(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write KV pair 1
@@ -340,13 +325,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should wait until 'ready' asserted to provide next Key chunk" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
-            dut.io.outputKeyOnly.poke(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write KV pair
@@ -412,13 +391,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Should wait until 'ready' asserted to provide next Key or Value chunk" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            // Default values for all signals
-            dut.io.enq.bits.poke(0.U)
-            dut.io.enq.valid.poke(false.B)
-            dut.io.deq.ready.poke(false.B)
-            dut.io.lastInput.poke(false.B)
-            dut.io.isInputKey.poke(false.B)
-            dut.io.outputKeyOnly.poke(false.B)
+            setDefaultValues(dut)
             dut.clock.step()
 
             // Write KV pair
