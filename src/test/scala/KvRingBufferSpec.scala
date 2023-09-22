@@ -15,6 +15,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
         dut.io.lastInput.poke(false.B)
         dut.io.isInputKey.poke(false.B)
         dut.io.outputKeyOnly.poke(false.B)
+        dut.io.moveReadPtr.poke(false.B)
     }
 
     "Check default output values" in {
@@ -495,4 +496,118 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.full.expect(false.B)
         }
     }
+
+    "Should move read pointer when requested" in {
+        test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            setDefaultValues(dut)
+            dut.clock.step()
+
+            // Write a first key
+            dut.io.enq.ready.expect(true.B)
+            dut.io.enq.bits.poke(0xA.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.enq.bits.poke(0xB.U)
+            dut.clock.step()
+
+            // Write a first value
+            dut.io.isInputKey.poke(false.B)
+            dut.io.enq.bits.poke(0xC.U)
+            dut.clock.step()
+
+            dut.io.enq.bits.poke(0xD.U)
+            dut.io.lastInput.poke(true.B)
+            dut.clock.step()
+
+            // Wait for KV pair to be written
+            dut.io.enq.valid.poke(false.B)
+            dut.io.lastInput.poke(false.B)
+            dut.io.enq.ready.expect(false.B)
+            dut.io.empty.expect(true.B)
+            while (dut.io.enq.ready.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+            dut.io.empty.expect(false.B)
+
+            // Write a second key
+            dut.io.enq.ready.expect(true.B)
+            dut.io.enq.bits.poke(0x2.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.enq.bits.poke(0x3.U)
+            dut.clock.step()
+
+            // Write a second value
+            dut.io.isInputKey.poke(false.B)
+            dut.io.enq.bits.poke(0x6.U)
+            dut.clock.step()
+
+            dut.io.enq.bits.poke(0x7.U)
+            dut.io.lastInput.poke(true.B)
+            dut.clock.step()
+
+            dut.io.lastInput.poke(false.B)
+            
+            // Start reading first KV pair
+            dut.io.deq.ready.poke(true.B)
+
+            while (dut.io.deq.valid.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.lastOutput.expect(false.B)
+            // Move read pointer to the second KV pair
+            dut.io.moveReadPtr.poke(true.B)
+            dut.clock.step()
+
+            // buffer reads metadata for the second KV pair, need to wait
+            dut.io.moveReadPtr.poke(false.B)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.clock.step()
+
+            dut.io.deq.valid.expect(false.B)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.clock.step(3)
+
+            // Read second key
+            dut.io.deq.valid.expect(true.B)
+            dut.io.deq.bits.expect(0x2.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0x3.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.clock.step()
+
+            // Read second value
+            dut.io.deq.bits.expect(0x6.U)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0x7.U)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.clock.step()
+            
+            dut.io.enq.ready.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.empty.expect(true.B)
+            dut.io.full.expect(false.B)
+        }
+    }
+
 }

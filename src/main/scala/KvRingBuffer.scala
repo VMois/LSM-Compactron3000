@@ -8,7 +8,7 @@ class KVRingBufferIO(busWidth: Int) extends Bundle {
     val enq = Flipped(Decoupled(UInt(busWidth.W)))
     val deq = Decoupled(UInt(busWidth.W))
 
-    var moveReadPtr = Input(Bool())
+    var moveReadPtr = Input(Bool()) // request buffer to stop reading and move read pointer to the next KV pair
 
     val outputKeyOnly = Input(Bool()) // indicates that only key should be outputted by the buffer
     val lastInput = Input(Bool()) // indicates the last input is presented to the buffer
@@ -142,7 +142,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
 
     switch(outputStateReg) {
         is(requestKeyLen) { 
-            when(!emptyReg) {
+            when(!emptyReg && !io.moveReadPtr) {
                 readKeyChunkPtr := 0.U
                 readValueChunkPtr := 0.U
                 outputStateReg := requestValueLen
@@ -150,54 +150,61 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(requestValueLen) {
-            outputStateReg := outputReadKeyLen
-            readKeyChunkPtr := 1.U
+            when (!io.moveReadPtr) {
+                outputStateReg := outputReadKeyLen
+                readKeyChunkPtr := 1.U
+            }
         }
 
         is(outputReadKeyLen) {
-            keyLen := data
+            when (!io.moveReadPtr) {
+                keyLen := data
 
-            // request first chunk of a Key
-            readKeyChunkPtr := 0.U
-            readValueChunkPtr := metadataAddressOffset.U
-            outputStateReg := outputReadValueLen
+                // request first chunk of a Key
+                readKeyChunkPtr := 0.U
+                readValueChunkPtr := metadataAddressOffset.U
+                outputStateReg := outputReadValueLen
+            }
         }
 
         is(outputReadValueLen) {
             valueLen := data
+            when (!io.moveReadPtr) {
+                when(keyLen === 1.U) {
+                    // request first chunk of a Value
+                    readValueChunkPtr := 0.U
+                    readKeyChunkPtr := (metadataAddressOffset + keyAddressOffset).U
 
-            when(keyLen === 1.U) {
-                // request first chunk of a Value
-                readValueChunkPtr := 0.U
-                readKeyChunkPtr := (metadataAddressOffset + keyAddressOffset).U
-
-                outputStateReg := readLastKeyChunk
-            } otherwise {
-                // request 2nd chunk of a Key
-                readKeyChunkPtr := 1.U
-                outputStateReg := outputReadKey
+                    outputStateReg := readLastKeyChunk
+                } otherwise {
+                    // request 2nd chunk of a Key
+                    readKeyChunkPtr := 1.U
+                    outputStateReg := outputReadKey
+                }
             }
         }
 
         is(outputReadKey) {
-            when(io.deq.ready) {
-                when (readKeyChunkPtr === keyLen - 1.U) {
-                    outputStateReg := readLastKeyChunk
-                    emptyReg := nextRead === writePtr
-                    readValueChunkPtr := 0.U
-                    readKeyChunkPtr := (metadataAddressOffset + keyAddressOffset).U
-                } otherwise {
-                    readKeyChunkPtr := readKeyChunkPtr + 1.U
+            when (!io.moveReadPtr) {
+                when(io.deq.ready) {
+                    when (readKeyChunkPtr === keyLen - 1.U) {
+                        outputStateReg := readLastKeyChunk
+                        emptyReg := nextRead === writePtr
+                        readValueChunkPtr := 0.U
+                        readKeyChunkPtr := (metadataAddressOffset + keyAddressOffset).U
+                    } otherwise {
+                        readKeyChunkPtr := readKeyChunkPtr + 1.U
+                    }
                 }
-            }
-            .otherwise {
-                shadowReg := data
-                outputStateReg := waitForReadKey
+                .otherwise {
+                    shadowReg := data
+                    outputStateReg := waitForReadKey
+                }
             }
         }
 
         is(waitForReadKey) {
-            when(io.deq.ready) {
+            when(io.deq.ready && !io.moveReadPtr) {
                 when (readKeyChunkPtr === keyLen - 1.U) {
                     outputStateReg := readLastKeyChunk
                     emptyReg := nextRead === writePtr
@@ -211,25 +218,27 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(readLastKeyChunk) {
-            when(io.deq.ready) {
-                when(io.outputKeyOnly) {
-                     outputStateReg := requestKeyLen
-                } otherwise {
-                    when(valueLen === 1.U) {
-                        outputStateReg := readLastValueChunk
+            when (!io.moveReadPtr) {
+                when(io.deq.ready) {
+                    when(io.outputKeyOnly) {
+                        outputStateReg := requestKeyLen
                     } otherwise {
-                        outputStateReg := outputReadValue
-                        readValueChunkPtr := 1.U
+                        when(valueLen === 1.U) {
+                            outputStateReg := readLastValueChunk
+                        } otherwise {
+                            outputStateReg := outputReadValue
+                            readValueChunkPtr := 1.U
+                        }
                     }
+                }.otherwise {
+                    shadowReg := data
+                    outputStateReg := waitForReadLastKeyChunk
                 }
-            }.otherwise {
-                shadowReg := data
-                outputStateReg := waitForReadLastKeyChunk
             }
         }
 
         is(waitForReadLastKeyChunk) {
-            when(io.deq.ready) {
+            when(io.deq.ready && !io.moveReadPtr) {
                 when(io.outputKeyOnly) {
                      outputStateReg := requestKeyLen
                 } otherwise {
@@ -244,22 +253,24 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(outputReadValue) {
-            when(io.deq.ready) {
-                when(readValueChunkPtr === valueLen - 1.U) {
-                    outputStateReg := readLastValueChunk
-                    emptyReg := nextRead === writePtr
-                } otherwise {
-                    readValueChunkPtr := readValueChunkPtr + 1.U
+            when (!io.moveReadPtr) {
+                when(io.deq.ready) {
+                    when(readValueChunkPtr === valueLen - 1.U) {
+                        outputStateReg := readLastValueChunk
+                        emptyReg := nextRead === writePtr
+                    } otherwise {
+                        readValueChunkPtr := readValueChunkPtr + 1.U
+                    }
                 }
-            }
-            .otherwise {
-                shadowReg := data
-                outputStateReg := waitForReadValue
+                .otherwise {
+                    shadowReg := data
+                    outputStateReg := waitForReadValue
+                }
             }
         }
 
         is(waitForReadValue) {
-            when(io.deq.ready) {
+            when(io.deq.ready && !io.moveReadPtr) {
                 when(readValueChunkPtr === valueLen - 1.U) {
                     outputStateReg := readLastValueChunk
                     emptyReg := nextRead === writePtr
@@ -270,17 +281,19 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(readLastValueChunk) {
-            when(io.deq.ready) {
-                outputStateReg := requestKeyLen
-            }
-            .otherwise {
-                shadowReg := data
-                outputStateReg := waitForReadLastValueChunk
+            when (!io.moveReadPtr) {
+                when(io.deq.ready) {
+                    outputStateReg := requestKeyLen
+                }
+                .otherwise {
+                    shadowReg := data
+                    outputStateReg := waitForReadLastValueChunk
+                }
             }
         }
 
         is(waitForReadLastValueChunk) {
-            when(io.deq.ready) {
+            when(io.deq.ready && !io.moveReadPtr) {
                 outputStateReg := requestKeyLen
             }
         }
