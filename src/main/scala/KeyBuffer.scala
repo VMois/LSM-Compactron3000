@@ -13,6 +13,7 @@ class KeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     val clearBuffer = Input(Bool())
 
     val bufferOutputSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
+    val empty = Output(Bool())
 }
 
 
@@ -135,6 +136,7 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
     // the reason is that the "bufferOutputSelect" register 
     // will contain the value from the current cycle but the valid data will be from previous.
     io.bufferOutputSelect := bufferOutputSelect - 1.U
+    io.empty := emptyReg
 }
 
 object KeyBufferMain extends App {
