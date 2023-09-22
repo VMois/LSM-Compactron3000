@@ -9,6 +9,7 @@ class KVRingBufferIO(busWidth: Int) extends Bundle {
     val deq = Decoupled(UInt(busWidth.W))
 
     var moveReadPtr = Input(Bool()) // request buffer to stop reading and move read pointer to the next KV pair
+    var resetRead = Input(Bool()) // request buffer to start reading current KV pair from the beginning
 
     val outputKeyOnly = Input(Bool()) // indicates that only key should be outputted by the buffer
     val lastInput = Input(Bool()) // indicates the last input is presented to the buffer
@@ -131,9 +132,12 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
     }
 
-    when (io.moveReadPtr) {
-        incrRead := true.B
+    val moveOrResetRequested = io.moveReadPtr || io.resetRead
+    when (moveOrResetRequested) {
         outputStateReg := requestKeyLen
+        when (io.moveReadPtr) {
+            incrRead := true.B
+        }
     }
 
     val readFullPtr = readPtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + readValueChunkPtr + readKeyChunkPtr
@@ -142,7 +146,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
 
     switch(outputStateReg) {
         is(requestKeyLen) { 
-            when(!emptyReg && !io.moveReadPtr) {
+            when(!emptyReg && !moveOrResetRequested) {
                 readKeyChunkPtr := 0.U
                 readValueChunkPtr := 0.U
                 outputStateReg := requestValueLen
@@ -150,14 +154,14 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(requestValueLen) {
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 outputStateReg := outputReadKeyLen
                 readKeyChunkPtr := 1.U
             }
         }
 
         is(outputReadKeyLen) {
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 keyLen := data
 
                 // request first chunk of a Key
@@ -169,7 +173,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
 
         is(outputReadValueLen) {
             valueLen := data
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 when(keyLen === 1.U) {
                     // request first chunk of a Value
                     readValueChunkPtr := 0.U
@@ -185,7 +189,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(outputReadKey) {
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 when(io.deq.ready) {
                     when (readKeyChunkPtr === keyLen - 1.U) {
                         outputStateReg := readLastKeyChunk
@@ -204,7 +208,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(waitForReadKey) {
-            when(io.deq.ready && !io.moveReadPtr) {
+            when(io.deq.ready && !moveOrResetRequested) {
                 when (readKeyChunkPtr === keyLen - 1.U) {
                     outputStateReg := readLastKeyChunk
                     emptyReg := nextRead === writePtr
@@ -218,7 +222,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(readLastKeyChunk) {
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 when(io.deq.ready) {
                     when(io.outputKeyOnly) {
                         outputStateReg := requestKeyLen
@@ -238,7 +242,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(waitForReadLastKeyChunk) {
-            when(io.deq.ready && !io.moveReadPtr) {
+            when(io.deq.ready && !moveOrResetRequested) {
                 when(io.outputKeyOnly) {
                      outputStateReg := requestKeyLen
                 } otherwise {
@@ -253,7 +257,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(outputReadValue) {
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 when(io.deq.ready) {
                     when(readValueChunkPtr === valueLen - 1.U) {
                         outputStateReg := readLastValueChunk
@@ -270,7 +274,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(waitForReadValue) {
-            when(io.deq.ready && !io.moveReadPtr) {
+            when(io.deq.ready && !moveOrResetRequested) {
                 when(readValueChunkPtr === valueLen - 1.U) {
                     outputStateReg := readLastValueChunk
                     emptyReg := nextRead === writePtr
@@ -281,7 +285,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(readLastValueChunk) {
-            when (!io.moveReadPtr) {
+            when (!moveOrResetRequested) {
                 when(io.deq.ready) {
                     outputStateReg := requestKeyLen
                 }
@@ -293,7 +297,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(waitForReadLastValueChunk) {
-            when(io.deq.ready && !io.moveReadPtr) {
+            when(io.deq.ready && !moveOrResetRequested) {
                 outputStateReg := requestKeyLen
             }
         }
