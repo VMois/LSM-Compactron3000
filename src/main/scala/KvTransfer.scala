@@ -112,24 +112,28 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 }
 
 
+class TopKvTransferIO(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Bundle {
+    val enq = Vec(numberOfBuffers, Flipped(Decoupled(UInt(busWidth.W))))
+    val deq = Decoupled(UInt(busWidth.W))
+
+    val lastInputs = Input(Vec(numberOfBuffers, Bool()))
+    val command = Input(UInt(2.W))
+    val stop = Input(Bool())
+
+    val bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
+    val outputKeyOnly = Output(Bool())
+    val busy = Output(Bool())
+    val incrKeyBufferPtr = Output(Bool())
+}
+
+
 /** A top module that connects KV transfer module to multiple buffers. 
  *
  *  @param busWidth, the number of bits that can be read from memory at once.
  *  @param numberOfBuffers, the number of buffers that will be connected to the KV transfer module.
  */
 class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
-    val io = IO(new Bundle {
-        val enq = Vec(numberOfBuffers, Flipped(Decoupled(UInt(busWidth.W))))
-        val deq = Decoupled(UInt(busWidth.W))
-
-        val lastInputs = Input(Vec(numberOfBuffers, Bool()))
-        val command = Input(UInt(2.W))
-        val stop = Input(Bool())
-
-        val bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
-        val outputKeyOnly = Output(Bool())
-        val busy = Output(Bool())
-    })
+    val io = IO(new TopKvTransferIO(busWidth, numberOfBuffers))
 
     val kvTransfer = Module(new KvTransfer(busWidth, numberOfBuffers))
 
@@ -142,6 +146,7 @@ class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module 
     kvTransfer.io.command <> io.command
     kvTransfer.io.outputKeyOnly <> io.outputKeyOnly
     kvTransfer.io.busy <> io.busy
+    kvTransfer.io.incrKeyBufferPtr <> io.incrKeyBufferPtr
 
     for (i <- 0 until numberOfBuffers) {
         when(kvTransfer.io.bufferSelect === i.U) {
