@@ -15,6 +15,7 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     var bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val outputKeyOnly = Output(Bool())
     val busy = Output(Bool())
+    val incrKeyBufferPtr = Output(Bool())
 }
 
 
@@ -99,6 +100,11 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     io.bufferSelect := bufferIdx
     io.outputKeyOnly := state === loadChunk || state === waitForTransfer
     io.busy := state =/= idle
+
+    // this works when we iterate over all buffers, 
+    // but it will not work if we want to load only non-empty buffers
+    // because buffer with index 3 might be skipped.
+    io.incrKeyBufferPtr := bufferIdx === (numberOfBuffers-1).U && (state === loadChunk || state === waitForTransfer)
 
     io.enq.ready := state === loadChunk && moreChunksToLoad(bufferIdx) === true.B
     io.deq.bits := Mux(state === waitForTransfer, data, io.enq.bits)

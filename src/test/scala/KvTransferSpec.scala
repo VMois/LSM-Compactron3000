@@ -20,6 +20,8 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             dut.io.enq.ready.expect(false.B)
             dut.io.deq.valid.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
+            dut.io.busy.expect(false.B)
             dut.io.command.poke("b01".U)
             dut.clock.step()
 
@@ -36,6 +38,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+                dut.io.incrKeyBufferPtr.expect(false.B)
 
                 dut.clock.step()
 
@@ -44,6 +47,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.busy.expect(true.B)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+                dut.io.incrKeyBufferPtr.expect(false.B)
 
                 dut.clock.step()
 
@@ -53,6 +57,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.busy.expect(true.B)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+                dut.io.incrKeyBufferPtr.expect(false.B)
 
                 dut.clock.step()
             }
@@ -66,6 +71,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.bufferSelect.expect(0.U)
             dut.io.deq.valid.expect(false.B)
             dut.io.enq.ready.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
 
             dut.io.command.poke("b01".U)
             dut.clock.step()
@@ -83,6 +89,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+                dut.io.incrKeyBufferPtr.expect(false.B)
 
                 dut.clock.step()
             }
@@ -96,6 +103,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.bufferSelect.expect(0.U)
             dut.io.deq.valid.expect(false.B)
             dut.io.enq.ready.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
         }
     }
 
@@ -111,6 +119,8 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             dut.io.enq.ready.expect(false.B)
             dut.io.deq.valid.expect(false.B)
+            dut.io.busy.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
             dut.io.command.poke("b01".U)
             dut.clock.step()
 
@@ -126,6 +136,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+                
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
 
                 dut.clock.step()
 
@@ -134,6 +151,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
 
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
+
                 dut.clock.step()
 
                 // delayed read by two clocks
@@ -141,6 +165,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
 
                 dut.clock.step()
             }
@@ -158,6 +189,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
 
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
+
                 dut.clock.step()
 
                 // one clock delay
@@ -165,6 +203,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
 
                 dut.clock.step()
 
@@ -175,6 +220,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
 
                 dut.clock.step()
             }
@@ -206,6 +258,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.ready.expect(false.B)
             dut.io.deq.valid.expect(false.B)
             dut.io.busy.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
             dut.io.command.poke("b01".U)
             dut.clock.step()
 
@@ -222,6 +275,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x1 + i).U)
+
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
 
                 dut.clock.step()
             }
@@ -257,6 +317,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x6 + i).U)
 
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
+
                 dut.clock.step()
             }
 
@@ -271,6 +338,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.busy.expect(true.B)
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(false.B)
+                dut.io.incrKeyBufferPtr.expect(false.B)
 
                 dut.clock.step()
             }
@@ -285,6 +353,13 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferSelect.expect(i.U)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0xA + i).U)
+
+                // on last buffer, we should increment key buffer pointer
+                if (i == 3) {
+                    dut.io.incrKeyBufferPtr.expect(true.B)
+                } else {
+                    dut.io.incrKeyBufferPtr.expect(false.B)
+                }
 
                 dut.clock.step()
             }
