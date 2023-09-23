@@ -84,7 +84,7 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
             when(!emptyReg && !io.clearBuffer) {
                 stateReg := valid
                 fullReg := false.B
-                emptyReg := nextRead === writePtr && shouldIncreaseReadPtr
+                emptyReg := nextRead === writePtr && shouldIncreaseReadPtr && !io.incrWritePtr
                 // prepare for the next read, as it requires one cycle delay
                 bufferOutputSelect := bufferOutputSelect + 1.U
             }
@@ -95,7 +95,7 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
                     when(!emptyReg) {
                         stateReg := valid
                         fullReg := false.B
-                        emptyReg := nextRead === writePtr && shouldIncreaseReadPtr
+                        emptyReg := nextRead === writePtr && shouldIncreaseReadPtr && !io.incrWritePtr
                         incrRead := shouldIncreaseReadPtr
                         bufferOutputSelect := bufferOutputSelect + 1.U
                     } otherwise {
@@ -114,7 +114,7 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
                     when(!emptyReg) {
                         stateReg := valid
                         fullReg := false.B
-                        emptyReg := nextRead === writePtr && (bufferOutputSelect === (numberOfBuffers-1).U)
+                        emptyReg := nextRead === writePtr && shouldIncreaseReadPtr && !io.incrWritePtr
                         incrRead := shouldIncreaseReadPtr
                         bufferOutputSelect := bufferOutputSelect + 1.U
                     } otherwise {
