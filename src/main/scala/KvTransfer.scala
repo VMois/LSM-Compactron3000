@@ -16,6 +16,7 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     val outputKeyOnly = Output(Bool())
     val busy = Output(Bool())
     val incrKeyBufferPtr = Output(Bool())
+    val clearKeyBuffer = Output(Bool())
 }
 
 
@@ -34,7 +35,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
     val io = IO(new KvTransferIO(busWidth, numberOfBuffers))
 
-    val idle :: loadChunk :: waitForTransfer :: Nil = Enum(3)
+    val idle :: clearKeyBuffer :: loadChunk :: waitForTransfer :: Nil = Enum(4)
 
     val state = RegInit(idle)
     val data = RegInit(0.U(busWidth.W))
@@ -47,8 +48,11 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     switch (state) {
         is (idle) {
             when (io.command === "b01".U) {
-                state := loadChunk
+                state := clearKeyBuffer
             }
+        }
+        is (clearKeyBuffer) {
+            state := loadChunk
         }
         is (loadChunk) { 
             when (io.stop === false.B && moreChunksToLoad(bufferIdx) === true.B) {
@@ -100,6 +104,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     io.bufferSelect := bufferIdx
     io.outputKeyOnly := state === loadChunk || state === waitForTransfer
     io.busy := state =/= idle
+    io.clearKeyBuffer := state === clearKeyBuffer
 
     // this works when we iterate over all buffers, 
     // but it will not work if we want to load only non-empty buffers
@@ -124,6 +129,7 @@ class TopKvTransferIO(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Bundl
     val outputKeyOnly = Output(Bool())
     val busy = Output(Bool())
     val incrKeyBufferPtr = Output(Bool())
+    val clearKeyBuffer = Output(Bool())
 }
 
 
@@ -147,6 +153,7 @@ class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module 
     kvTransfer.io.outputKeyOnly <> io.outputKeyOnly
     kvTransfer.io.busy <> io.busy
     kvTransfer.io.incrKeyBufferPtr <> io.incrKeyBufferPtr
+    kvTransfer.io.clearKeyBuffer <> io.clearKeyBuffer
 
     for (i <- 0 until numberOfBuffers) {
         when(kvTransfer.io.bufferSelect === i.U) {
