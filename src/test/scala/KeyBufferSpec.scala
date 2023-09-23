@@ -59,6 +59,65 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
         }
     }
 
+    "Should write key chunks rows and read them back with no delay" in {
+        test(new KeyBuffer(busWidth = 4, numberOfBuffers = 4, maximumKeySize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // setup default values
+            dut.io.deq.ready.poke(false.B)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.incrWritePtr.poke(false.B)
+            dut.io.empty.expect(true.B)
+
+            // Write one row of key chunks
+            for (i <- 0 until 4) {
+                dut.io.enq.ready.expect(true.B)
+                dut.io.enq.bits.poke((0xA + i).U)
+                dut.io.bufferInputSelect.poke(i.U)
+                if (i == 3) {
+                    dut.io.incrWritePtr.poke(true.B)
+                }
+                dut.clock.step()
+                dut.io.incrWritePtr.poke(false.B)
+            }
+
+            dut.io.deq.ready.poke(true.B)
+            dut.io.empty.expect(false.B)
+
+            for (i <- 0 until 4) {
+                // Write second row of key chunks
+                dut.io.enq.ready.expect(true.B)
+                dut.io.enq.bits.poke((0x3 + i).U) 
+                dut.io.bufferInputSelect.poke(i.U)
+                if (i == 3) {
+                    dut.io.incrWritePtr.poke(true.B)
+                }
+                dut.clock.step()
+                dut.io.incrWritePtr.poke(false.B)
+
+                // Read first row of key chunks
+                dut.io.deq.valid.expect(true.B)
+                dut.io.deq.bits.expect((0xA + i).U)
+                dut.io.bufferOutputSelect.expect(i.U)
+            }
+
+            dut.io.enq.valid.poke(false.B)
+            dut.io.empty.expect(false.B)
+            dut.clock.step()
+
+            // Read second row of key chunks
+            for (i <- 0 until 4) {
+                dut.io.deq.valid.expect(true.B)
+                dut.io.deq.bits.expect((0x3 + i).U)
+                dut.io.bufferOutputSelect.expect(i.U)
+                dut.clock.step()
+            }
+
+            dut.io.deq.ready.poke(false.B)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.enq.ready.expect(true.B)
+            dut.io.empty.expect(true.B)
+        }
+    }
+
     "Should reset buffer" in {
         test(new KeyBuffer(busWidth = 4, numberOfBuffers = 4, maximumKeySize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // setup default values
@@ -110,19 +169,22 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.incrWritePtr.poke(false.B)
             }
 
+            dut.io.empty.expect(false.B)
             dut.io.enq.valid.poke(false.B)
             
             // wait
             dut.clock.step(3)
             dut.io.deq.ready.poke(true.B)
             dut.io.enq.valid.poke(true.B)
+            dut.io.empty.expect(false.B)
 
-            // Write second row and read first row of key chunks
             for (i <- 0 until 4) {
+                // Read first row
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0xA + i).U)
                 dut.io.bufferOutputSelect.expect(i.U)
 
+                // Write second row
                 dut.io.enq.ready.expect(true.B)
                 dut.io.enq.bits.poke((0x3 + i).U) 
                 dut.io.bufferInputSelect.poke(i.U)
@@ -134,6 +196,7 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             }
 
             dut.io.enq.valid.poke(false.B)
+            dut.io.empty.expect(false.B)
 
             // TODO: one clock delay is needed here
             dut.clock.step()
