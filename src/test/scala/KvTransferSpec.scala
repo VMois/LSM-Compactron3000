@@ -26,10 +26,11 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.command.poke("b01".U)
             dut.clock.step()
 
-            dut.io.command.poke("b00".U)
-
             // wait for Key Buffer to clear
             dut.io.clearKeyBuffer.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.command.poke("b00".U)
+
             dut.clock.step()
 
             // load two chunks with delay
@@ -86,6 +87,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             // wait to clear the key buffer
             dut.io.clearKeyBuffer.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
             dut.clock.step()
 
             // reset command to "neutral"
@@ -143,6 +145,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             dut.io.command.poke("b00".U)
             dut.io.clearKeyBuffer.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
             dut.clock.step()
 
             for (i <- 0 until 4) {
@@ -292,6 +295,7 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
             // reset command to "neutral"
             dut.io.command.poke("b00".U)
             dut.io.clearKeyBuffer.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
             dut.clock.step()
 
             for (i <- 0 until 4) {
@@ -414,6 +418,50 @@ class KvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.bufferSelect.expect(0.U)
         }
     }
+
+    "Should not output deq.valid == true when clearing Key Buffer" in {
+        test(new KvTransfer(4)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            // set inputs to default
+            dut.io.enq.bits.poke(0.U)
+            dut.io.lastInput.poke(false.B)
+            dut.io.enq.valid.poke(false.B)
+            dut.io.deq.ready.poke(false.B)
+            dut.io.stop.poke(false.B)
+            dut.clock.step()
+
+            dut.io.enq.ready.expect(false.B)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
+            dut.io.busy.expect(false.B)
+            dut.io.clearKeyBuffer.expect(false.B)
+
+            dut.io.command.poke("b01".U)
+            dut.clock.step()
+
+            // enq outputs valid results but KvTransfer is not ready yet
+            dut.io.enq.valid.poke(true.B)
+            dut.io.enq.ready.expect(false.B)
+
+            dut.io.clearKeyBuffer.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.command.poke("b00".U)
+
+            dut.clock.step()
+
+            dut.io.clearKeyBuffer.expect(false.B)
+            dut.io.stop.poke(true.B)
+
+            dut.clock.step()
+            
+            dut.io.stop.poke(false.B)
+            dut.io.busy.expect(false.B)
+            dut.io.bufferSelect.expect(0.U)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.enq.ready.expect(false.B)
+            dut.io.incrKeyBufferPtr.expect(false.B)
+            dut.io.clearKeyBuffer.expect(false.B)
+        }
+    }
 }
 
 class TopKvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
@@ -435,6 +483,7 @@ class TopKvTransferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             dut.io.command.poke("b00".U)
             dut.io.clearKeyBuffer.expect(true.B)
+            dut.io.deq.valid.expect(false.B)
             dut.clock.step()
 
             dut.io.busy.expect(true.B)

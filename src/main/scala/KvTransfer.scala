@@ -113,7 +113,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
     io.enq.ready := state === loadChunk && moreChunksToLoad(bufferIdx) === true.B
     io.deq.bits := Mux(state === waitForTransfer, data, io.enq.bits)
-    io.deq.valid := state =/= idle && (state === waitForTransfer || (io.enq.valid && moreChunksToLoad(bufferIdx) === true.B))
+    io.deq.valid := (state =/= idle && state =/= clearKeyBuffer) && (state === waitForTransfer || (state === loadChunk && (io.enq.valid && moreChunksToLoad(bufferIdx) === true.B)))
 }
 
 
