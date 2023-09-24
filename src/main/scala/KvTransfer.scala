@@ -89,7 +89,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
             }
         }
         is (waitForTransfer) {
-            when (io.deq.ready) {
+            when (io.deq.ready && !io.stop) {
                 bufferIdx := bufferIdx + 1.U
                 state := loadChunk
             }
