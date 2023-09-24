@@ -47,6 +47,10 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
     switch (state) {
         is (idle) {
+            // Reset variables
+            bufferIdx := 0.U
+            moreChunksToLoad.foreach(_ := true.B)
+
             when (io.command === "b01".U) {
                 state := clearKeyBuffer
             }
@@ -69,7 +73,6 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                 // If all buffers are empty, then command is finished.
                 when (allBuffersEmpty) {
                     state := idle
-                    bufferIdx := 0.U
                 } .otherwise {
                     // Only this buffer is empty, move to the next one.
                     bufferIdx := bufferIdx + 1.U
@@ -83,8 +86,6 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
             when (io.stop) {
                 state := idle
-                bufferIdx := 0.U
-                moreChunksToLoad.foreach(_ := true.B)
             }
         }
         is (waitForTransfer) {
@@ -95,8 +96,6 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
             when (io.stop) {
                 state := idle
-                bufferIdx := 0.U
-                moreChunksToLoad.foreach(_ := true.B)
             }
         }
     }
