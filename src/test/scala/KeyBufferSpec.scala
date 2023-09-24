@@ -69,6 +69,7 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             // Write one row of key chunks
             for (i <- 0 until 4) {
+                dut.io.empty.expect(true.B)
                 dut.io.enq.ready.expect(true.B)
                 dut.io.enq.bits.poke((0xA + i).U)
                 dut.io.bufferInputSelect.poke(i.U)
@@ -94,6 +95,7 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.incrWritePtr.poke(false.B)
 
                 // Read first row of key chunks
+                dut.io.empty.expect(false.B)
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0xA + i).U)
                 dut.io.bufferOutputSelect.expect(i.U)
@@ -105,6 +107,12 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             // Read second row of key chunks
             for (i <- 0 until 4) {
+                if (i == 3) {
+                    // No key chunk rows left after this row
+                    dut.io.empty.expect(true.B)
+                } else {
+                    dut.io.empty.expect(false.B)
+                }
                 dut.io.deq.valid.expect(true.B)
                 dut.io.deq.bits.expect((0x3 + i).U)
                 dut.io.bufferOutputSelect.expect(i.U)
