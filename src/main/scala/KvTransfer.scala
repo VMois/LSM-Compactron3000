@@ -17,6 +17,9 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     val busy = Output(Bool())
     val incrKeyBufferPtr = Output(Bool())
     val clearKeyBuffer = Output(Bool())
+    
+    // outputs whatever current key chunk is the last one, only valid if deq.valid is True
+    val isLastKeyChunk = Output(Bool())
 }
 
 
@@ -39,6 +42,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
     val state = RegInit(idle)
     val data = RegInit(0.U(busWidth.W))
+    val lastKeyChunk = RegInit(false.B)
 
     // Command 01: variables, etc.
     val bufferIdx = RegInit(0.U(log2Ceil(numberOfBuffers).W))
@@ -66,6 +70,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                     } .otherwise {
                         // Data is not transferred this clock cycle, store and wait until it will be received.
                         data := io.enq.bits
+                        lastKeyChunk := io.lastInput
                         state := waitForTransfer
                     }
                 }
@@ -104,6 +109,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     io.outputKeyOnly := state === loadChunk || state === waitForTransfer
     io.busy := state =/= idle
     io.clearKeyBuffer := state === clearKeyBuffer
+    io.isLastKeyChunk := Mux(state === waitForTransfer, lastKeyChunk, io.lastInput)
 
     // this works when we iterate over all buffers, 
     // but it will not work if we want to load only non-empty buffers
@@ -124,11 +130,13 @@ class TopKvTransferIO(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Bundl
     val command = Input(UInt(2.W))
     val stop = Input(Bool())
 
+    // TODO: outputs are copied from KvTransfer module, not good to have duplicate code
     val bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val outputKeyOnly = Output(Bool())
     val busy = Output(Bool())
     val incrKeyBufferPtr = Output(Bool())
     val clearKeyBuffer = Output(Bool())
+    val isLastKeyChunk = Output(Bool())
 }
 
 
@@ -153,6 +161,7 @@ class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module 
     kvTransfer.io.busy <> io.busy
     kvTransfer.io.incrKeyBufferPtr <> io.incrKeyBufferPtr
     kvTransfer.io.clearKeyBuffer <> io.clearKeyBuffer
+    kvTransfer.io.isLastKeyChunk <> io.isLastKeyChunk
 
     for (i <- 0 until numberOfBuffers) {
         when(kvTransfer.io.bufferSelect === i.U) {
