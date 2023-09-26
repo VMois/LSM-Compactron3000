@@ -34,6 +34,7 @@ class TestKeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
 
     val bufferOutputSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val empty = Output(Bool())
+    val lastOutput = Output(Bool())
 }
 
 /** A top class to integrate several KvRingBuffers, TopKvTransfer, and KeyBuffer.
@@ -78,11 +79,13 @@ class TopTestModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     keyBuffer.io.bufferInputSelect <> topKvTransfer.io.bufferSelect   
     keyBuffer.io.incrWritePtr <> topKvTransfer.io.incrKeyBufferPtr
     keyBuffer.io.clearBuffer <> topKvTransfer.io.clearKeyBuffer
+    keyBuffer.io.lastInput <> topKvTransfer.io.isLastKeyChunk
 
     // Connect output of KeyBuffer to output of TopTestModule
     io.keyBuffer.deq <> keyBuffer.io.deq
     io.keyBuffer.bufferOutputSelect <> keyBuffer.io.bufferOutputSelect
     io.keyBuffer.empty <> keyBuffer.io.empty
+    io.keyBuffer.lastOutput <> keyBuffer.io.lastOutput
 }
 
 
@@ -170,6 +173,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
             // Read first row of key chunks
             for (i <- 0 until 4) {
                 dut.io.keyBuffer.deq.valid.expect(true.B)
+                dut.io.keyBuffer.lastOutput.expect(false.B)
                 dut.io.keyBuffer.bufferOutputSelect.expect(i.U)
                 dut.io.keyBuffer.deq.bits.expect((0 + i).U)
                 dut.clock.step()
@@ -178,6 +182,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
             // Read second row of key chunks
             for (i <- 0 until 4) {
                 dut.io.keyBuffer.deq.valid.expect(true.B)
+                dut.io.keyBuffer.lastOutput.expect(true.B)
                 dut.io.keyBuffer.bufferOutputSelect.expect(i.U)
                 dut.io.keyBuffer.deq.bits.expect((4 + i).U)
                 dut.clock.step()
@@ -185,6 +190,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
 
             dut.io.keyBuffer.empty.expect(true.B)
             dut.io.keyBuffer.deq.ready.poke(false.B)
+            dut.io.keyBuffer.deq.valid.expect(false.B)
 
             // Move read pointer to the next KV pair
             for (k <- 0 until 4) {
@@ -209,6 +215,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
             // Read first row of key chunks
             for (i <- 0 until 4) {
                 dut.io.keyBuffer.deq.valid.expect(true.B)
+                dut.io.keyBuffer.lastOutput.expect(false.B)
                 dut.io.keyBuffer.bufferOutputSelect.expect(i.U)
                 dut.io.keyBuffer.deq.bits.expect((1 + i).U)
                 dut.clock.step()
@@ -217,6 +224,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
             // Read second row of key chunks
             for (i <- 0 until 4) {
                 dut.io.keyBuffer.deq.valid.expect(true.B)
+                dut.io.keyBuffer.lastOutput.expect(true.B)
                 dut.io.keyBuffer.bufferOutputSelect.expect(i.U)
                 dut.io.keyBuffer.deq.bits.expect((5 + i).U)
                 dut.clock.step()

@@ -11,9 +11,11 @@ class KeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
     val incrWritePtr = Input(Bool())
     val clearBuffer = Input(Bool())
+    val lastInput = Input(Bool())
 
     val bufferOutputSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val empty = Output(Bool())
+    val lastOutput = Output(Bool())
 }
 
 
@@ -57,9 +59,19 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
     val readFullPtr = readPtr * numberOfBuffers.U + bufferOutputSelect
     val writeFullPtr = writePtr * numberOfBuffers.U + io.bufferInputSelect
 
+    val lastChunks = RegInit(VecInit(Seq.fill(numberOfBuffers)(false.B)))
+    val lastChunkCounters = RegInit(VecInit(Seq.fill(numberOfBuffers)(0.U(log2Ceil(depth).W))))
+
     when (io.enq.valid && !fullReg && !io.clearBuffer) {
         mem.write(writeFullPtr, io.enq.bits)
         fullReg := nextWrite === readPtr && io.incrWritePtr
+
+        // second condition, in theory, should never happen, but it is here just in case
+        // it prevents the last chunk from being overwritten if it was already written  
+        when (io.lastInput && !lastChunks(io.bufferInputSelect)) {
+            lastChunks(io.bufferInputSelect) := true.B
+            lastChunkCounters(io.bufferInputSelect) := writePtr
+        }
 
         // row was loaded, next write will be applied to the next row
         when (io.incrWritePtr) {
@@ -75,6 +87,8 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
         writePtr := 0.U
         readPtr := 0.U
         bufferOutputSelect := 0.U
+        lastChunks.foreach(_ := false.B)
+        lastChunkCounters.foreach(_ := 0.U)
     }
 
     val data = mem.read(readFullPtr)
@@ -126,16 +140,28 @@ class KeyBuffer(busWidth: Int, numberOfBuffers: Int, maximumKeySize: Int) extend
         }
     }
 
+    // the "bufferOutputSelect" reg contains the value from the current cycle
+    // but the valid output data is from previous cycle, hence substract 1.
+    io.bufferOutputSelect := bufferOutputSelect - 1.U
+
     io.deq.bits := Mux(stateReg === valid, data, shadowReg)
+
+    // because readPtr during the last cycle of row read already points to the next row, 
+    // we need a Mux to substract 1 in a right place.
+    val currentReadPtr = Mux(io.bufferOutputSelect === (numberOfBuffers - 1).U, readPtr - 1.U, readPtr)
+
+    // besides being in valid state, we should only output valid = True if the current chunk was never last chunk before
+    // for this we check in lastChunks if current buffer had a last chunk before;
+    // if it did, we check if we are past the last chunk; 
+    // if we are past the last chunk for this buffer, it means we are reading garbage and should output valid = False.
+    // this is important for consistency. The output data should always be correct if valid = True.
+    io.deq.valid := (stateReg === valid || stateReg === waitForTransfer) && Mux(lastChunks(io.bufferOutputSelect), lastChunkCounters(io.bufferOutputSelect) >= currentReadPtr, true.B)
+
+    io.lastOutput := lastChunks(io.bufferOutputSelect) && lastChunkCounters(io.bufferOutputSelect) === currentReadPtr
 
     // both enq and clearBuffer are driven by the same module, otherwise, it creates unpredictable behavior
     io.enq.ready := !fullReg && ~io.clearBuffer
-    io.deq.valid := stateReg === valid || stateReg === waitForTransfer
 
-    // this is a hack to output the correct buffer select value
-    // the reason is that the "bufferOutputSelect" register 
-    // will contain the value from the current cycle but the valid data will be from previous.
-    io.bufferOutputSelect := bufferOutputSelect - 1.U
     io.empty := emptyReg
 }
 
