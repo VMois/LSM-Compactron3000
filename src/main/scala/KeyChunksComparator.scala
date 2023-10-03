@@ -21,7 +21,7 @@ class KeyChunksComparator(busWidth: Int = 4, n: Int = 4) extends Module {
     val io = IO(new Bundle {
         val in = Input(Vec(n, UInt(busWidth.W)))
         val maskIn = Input(UInt(n.W))
-        val lastChunksMask = Input(UInt(n.W))
+        val lastChunksMask = Input(Vec(n, Bool()))
 
         val maskOut = Output(UInt(n.W))
         val haveWinner = Output(Bool())
@@ -58,7 +58,7 @@ class KeyChunksComparator(busWidth: Int = 4, n: Int = 4) extends Module {
     //    then we need to check if there are more chunks available for those inputs.
     // 6. If some chunks (equal to smallest key chunk) do not have more chunks available,
     //    then those chunks will be considered as a winner because they are the shortest.
-    val andResult = equalityMask.asUInt & io.lastChunksMask
+    val andResult = equalityMask.asUInt & io.lastChunksMask.asUInt
     val andResultEqualsZero = andResult === 0.U
 
     io.maskOut := Mux(hasOnlyOneOne || andResultEqualsZero, equalityMask.asUInt, andResult)

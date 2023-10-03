@@ -45,7 +45,10 @@ class KeyChunksComparatorSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.in(2).poke(in2.U)
                 dut.io.in(3).poke(in3.U)
 
-                dut.io.lastChunksMask.poke(lastChunks.U)
+                val lastChunksUInt = lastChunks.U
+                for (i <- 0 until 4) {
+                    dut.io.lastChunksMask(i).poke(lastChunksUInt(i))
+                }
                 dut.io.maskIn.poke(maskIn.U)
 
                 dut.io.maskOut.expect(maskOut.U)
