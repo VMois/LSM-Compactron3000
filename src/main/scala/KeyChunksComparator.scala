@@ -25,7 +25,7 @@ class KeyChunksComparator(busWidth: Int = 4, n: Int = 4) extends Module {
 
         val maskOut = Output(UInt(n.W))
         val haveWinner = Output(Bool())
-        val shouldLoadNewChunks = Output(Bool())
+        val winnerIndex = Output(UInt(log2Ceil(n).W))
     })
     // 1. Apply mask to inputs to include/exclude certain inputs from the comparison based on maskIn value.
     val modifiedInputs = Wire(Vec(n, UInt((busWidth + 1).W)))
@@ -63,5 +63,7 @@ class KeyChunksComparator(busWidth: Int = 4, n: Int = 4) extends Module {
 
     io.maskOut := Mux(hasOnlyOneOne || andResultEqualsZero, equalityMask.asUInt, andResult)
     io.haveWinner := hasOnlyOneOne || ~andResultEqualsZero
-    io.shouldLoadNewChunks := andResultEqualsZero & ~hasOnlyOneOne
+
+    // 7. The index of a winner is a position of the first least-significant "1" in maskOut
+    io.winnerIndex := PriorityEncoder(io.maskOut)
 }
