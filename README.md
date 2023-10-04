@@ -1,10 +1,13 @@
 LSM-Compactron3000
 =======================
 
-The FPGA accelerator for speeding up the compaction process in LSM databases.
-Based on [Teng Zhang et. al. paper](https://www.usenix.org/system/files/fast20-zhang_teng.pdf).
+The FPGA-based accelerator for the compaction process in LSM-tree Key Value databases.
 
 The hardware design is described in [Chisel3](https://github.com/chipsalliance/chisel).
+
+<p align="center">
+  <img src="meme.jpg" />
+</p>
 
 ## Design
 
