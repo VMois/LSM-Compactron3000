@@ -54,12 +54,14 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
 
     val keyChunks = Reg(Vec(numberOfBuffers, UInt(busWidth.W)))
     val lastKeyChunks = RegInit(VecInit(Seq.fill(numberOfBuffers)(false.B)))
-    val haveWinner = RegInit(false.B)
+
+    val comparingKeyChunks :: haveWinner :: Nil = Enum(2)
+    val state = RegInit(comparingKeyChunks)
 
     // default value for mask is all ones, which means that all buffers are included in the comparison
     val mask = RegInit(((1 << numberOfBuffers) - 1).U(numberOfBuffers.W))
 
-    val isLastRowChunkLoaded = io.bufferInputSelect === (numberOfBuffers - 1).U
+    val isLastRowChunkLoaded = io.bufferInputSelect === (numberOfBuffers - 1).U && io.enq.valid
 
     val keyChunksComparator = Module(new KeyChunksComparator(busWidth, numberOfBuffers))
     keyChunksComparator.io.maskIn := mask
@@ -77,31 +79,40 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
         }
     }
 
-    // If there is a winner, do not allow any changes
-    when (io.enq.valid && ~haveWinner) {
-        keyChunks(io.bufferInputSelect) := io.enq.bits
+    switch (state) {
+        is(comparingKeyChunks) {
+            when (io.enq.valid) {
+                keyChunks(io.bufferInputSelect) := io.enq.bits
 
-        // after last key chunk signal is observed for a buffer,
-        // we do not allow any consecutive changes, it remains true.
-        when (~lastKeyChunks(io.bufferInputSelect)) {
-            lastKeyChunks(io.bufferInputSelect) := io.lastInput
+                // after last key chunk signal is observed for a buffer,
+                // we do not allow any consecutive changes, it remains true.
+                when (~lastKeyChunks(io.bufferInputSelect)) {
+                    lastKeyChunks(io.bufferInputSelect) := io.lastInput
+                }
+            }
+
+            when (isLastRowChunkLoaded) {
+                mask := keyChunksComparator.io.maskOut
+                when (io.haveWinner) {
+                    state := haveWinner
+                }
+            }
+        }
+
+        is(haveWinner) {
+            when (io.reset) {
+                mask := ((1 << numberOfBuffers) - 1).U(numberOfBuffers.W)
+                state := comparingKeyChunks
+            }
         }
     }
-
-    // If there is a winner, do not allow any changes
-    when (isLastRowChunkLoaded && ~haveWinner) {
-        mask := keyChunksComparator.io.maskOut
-        haveWinner := io.haveWinner
-    }
-
-    when (io.reset) {
-        mask := ((1 << numberOfBuffers) - 1).U(numberOfBuffers.W)
-        haveWinner := false.B
-    }
-
-    io.isResultValid := Mux(haveWinner, true.B, isLastRowChunkLoaded)
-    io.haveWinner := Mux(haveWinner, haveWinner, keyChunksComparator.io.haveWinner)
+    
+    // isResultValid is important because io.haveWinner can be true/false
+    // when a new key chunks are loaded one by one, but only when all of them are ready
+    // we can say that the io.haveWinner result is valid
+    io.isResultValid := Mux(state === haveWinner, true.B, isLastRowChunkLoaded)
+    io.haveWinner := Mux(state === haveWinner, true.B, keyChunksComparator.io.haveWinner)
     io.nextKvPairsToLoad := keyChunksComparator.io.maskOut.asBools
     io.winnerIndex := keyChunksComparator.io.winnerIndex
-    io.enq.ready := ~haveWinner
+    io.enq.ready := state === comparingKeyChunks
 }

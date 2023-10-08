@@ -99,6 +99,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
 
             // Output winning results until module is reset
             dut.io.enq.ready.expect(false.B)
+            dut.io.isResultValid.expect(true.B)
             dut.io.haveWinner.expect(true.B)
             dut.io.winnerIndex.expect(2.U)
             dut.io.nextKvPairsToLoad(0).expect(false.B)
@@ -326,6 +327,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
             }
 
             dut.io.enq.ready.expect(false.B)
+            dut.io.isResultValid.expect(true.B)
             dut.io.haveWinner.expect(true.B)
             dut.io.winnerIndex.expect(1.U)
             dut.io.nextKvPairsToLoad(0).expect(false.B)
