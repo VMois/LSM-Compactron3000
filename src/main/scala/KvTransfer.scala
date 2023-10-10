@@ -5,29 +5,44 @@ import chisel3.util._
 
 
 class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
+    // inputs and outputs for receving data from buffers
     val enq = Flipped(Decoupled(UInt(busWidth.W)))
-    val deq = Decoupled(UInt(busWidth.W))
-
-    val command = Input(UInt(2.W))
     val lastInput = Input(Bool())
-    val stop = Input(Bool())
-
-    var bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
+    val isInputKey = Input(Bool())
+    val resetBufferRead = Output(Bool())
     val outputKeyOnly = Output(Bool())
+
+    // select one of the buffers to accept data from
+    var bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
+
+    // if false, output to key buffer
+    // if true, output to KV output buffer
+    var outputSelect = Output(Bool())
+
+    // inputs and outputs for control of the module
+    val command = Input(UInt(2.W))
+    val stop = Input(Bool())
+    val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
     val busy = Output(Bool())
+
+    // outputs for key buffer and KV output buffer
+    val deq = Decoupled(UInt(busWidth.W))
     val incrKeyBufferPtr = Output(Bool())
     val clearKeyBuffer = Output(Bool())
-    
-    // outputs whatever current key chunk is the last one, only valid if deq.valid is True
-    val isLastKeyChunk = Output(Bool())
+    val isOutputKey = Output(Bool())
+    val lastOutput = Output(Bool()) // outputs whatever current key chunk is the last one, only valid if deq.valid is True
 }
 
 
 /** A class for KV transfer module. 
  *  This module is used to transfer KV pairs to Comparator module when requested.
  *  The module supports following commands:
+ *    00:
+ *      Does nothing, waits for the command.
  *    01: 
  *      Transfers key chunks from all buffers, one-by-one, until all buffers are empty.
+ *    10:
+ *      Transfers selected KV pair from KV Ring Buffer to KV Output buffer.
  *
  *  @param busWidth, the number of bits that can be read from memory at once.
  *  @param numberOfBuffers, the number of buffers that will be connected to the KV transfer module.
@@ -38,25 +53,32 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
 
     val io = IO(new KvTransferIO(busWidth, numberOfBuffers))
 
-    val idle :: clearKeyBuffer :: loadChunk :: waitForTransfer :: Nil = Enum(4)
+    val idle :: clearKeyBuffer :: loadChunk :: waitForTransfer :: resetBufferRead :: transferKvPair :: Nil = Enum(6)
 
     val state = RegInit(idle)
     val data = RegInit(0.U(busWidth.W))
     val lastKeyChunk = RegInit(false.B)
 
-    // Command 01: variables, etc.
+    // Used by command 1 (b01) and 2 (b10)
     val bufferIdx = RegInit(0.U(log2Ceil(numberOfBuffers).W))
+
+    // Used by command 1 (b01)
     val moreChunksToLoad = RegInit(VecInit(Seq.fill(numberOfBuffers)(true.B)))
     val allBuffersEmpty = Cat(moreChunksToLoad) === 0.U
 
     switch (state) {
         is (idle) {
             // Reset variables
-            bufferIdx := 0.U
             moreChunksToLoad.foreach(_ := true.B)
 
             when (io.command === "b01".U) {
+                bufferIdx := 0.U
                 state := clearKeyBuffer
+            }
+
+            when (io.command === "b10".U) {
+                bufferIdx := io.bufferInputSelect
+                state := resetBufferRead
             }
         }
         is (clearKeyBuffer) {
@@ -103,40 +125,72 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                 state := idle
             }
         }
+
+        is (resetBufferRead) {
+            state := transferKvPair
+        }
+
+        is (transferKvPair) {
+            when (io.enq.valid && io.lastInput && io.deq.ready) {
+                state := idle
+            }
+        }
     }
     
+    io.outputSelect := state === transferKvPair
     io.bufferSelect := bufferIdx
-    io.outputKeyOnly := state === loadChunk || state === waitForTransfer
+    io.isOutputKey := io.isInputKey
+    io.outputKeyOnly := (state === loadChunk || state === waitForTransfer) && state =/= transferKvPair
     io.busy := state =/= idle
-    io.clearKeyBuffer := state === clearKeyBuffer
-    io.isLastKeyChunk := Mux(state === waitForTransfer, lastKeyChunk, io.lastInput)
+
+    // TODO: with io.stop, clearKeyBuffers will be signaled twice to KeyBuffer, not efficient
+    //       but we also cannot remove "state === clearKeyBuffer" check as there is a chance 
+    //       that KvTransfer will transfer all key chunks and go to idle state by itself
+    //       and it will require clearKeyBuffer step when command is issued again.
+    //       This can be improved, but, for now, it is not a priority.
+    io.clearKeyBuffer := state === clearKeyBuffer || io.stop
+    io.lastOutput := Mux(state === waitForTransfer, lastKeyChunk, io.lastInput)
+
+    // input buffers need to be reset when we start loading new chunks, or transfer KV pair
+    io.resetBufferRead := state === resetBufferRead || state === clearKeyBuffer
 
     // this works when we iterate over all buffers, 
     // but it will not work if we want to load only non-empty buffers
     // because buffer with index 3 might be skipped.
     io.incrKeyBufferPtr := bufferIdx === (numberOfBuffers-1).U && (state === loadChunk || state === waitForTransfer)
 
-    io.enq.ready := state === loadChunk && moreChunksToLoad(bufferIdx) === true.B
+    io.enq.ready := (state === loadChunk && moreChunksToLoad(bufferIdx) === true.B) || (state === transferKvPair && io.deq.ready)
     io.deq.bits := Mux(state === waitForTransfer, data, io.enq.bits)
-    io.deq.valid := (state =/= idle && state =/= clearKeyBuffer) && (state === waitForTransfer || (state === loadChunk && (io.enq.valid && moreChunksToLoad(bufferIdx) === true.B)))
+    io.deq.valid := ((state =/= idle && state =/= clearKeyBuffer) && (state === waitForTransfer || (state === loadChunk && (io.enq.valid && moreChunksToLoad(bufferIdx) === true.B)))) || (state === transferKvPair && io.enq.valid)
 }
 
 
 class TopKvTransferIO(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Bundle {
     val enq = Vec(numberOfBuffers, Flipped(Decoupled(UInt(busWidth.W))))
+
+    // deq for Key Buffer
     val deq = Decoupled(UInt(busWidth.W))
 
+    // deq for KV output buffer
+    val deqKvPair = Decoupled(UInt(busWidth.W))
+
     val lastInputs = Input(Vec(numberOfBuffers, Bool()))
+    val isInputKey = Input(Vec(numberOfBuffers, Bool()))
+    
+    // control signals for KvTransfer module
     val command = Input(UInt(2.W))
     val stop = Input(Bool())
+    val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
+    val busy = Output(Bool())
 
     // TODO: outputs are copied from KvTransfer module, not good to have duplicate code
     val bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val outputKeyOnly = Output(Bool())
-    val busy = Output(Bool())
     val incrKeyBufferPtr = Output(Bool())
     val clearKeyBuffer = Output(Bool())
-    val isLastKeyChunk = Output(Bool())
+    val lastOutput = Output(Bool())
+    val resetBufferRead = Output(Bool())
+    val isOutputKey = Output(Bool())
 }
 
 
@@ -150,28 +204,52 @@ class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module 
 
     val kvTransfer = Module(new KvTransfer(busWidth, numberOfBuffers))
 
-    kvTransfer.io.enq <> DontCare
-    kvTransfer.io.lastInput <> DontCare
-    kvTransfer.io.stop <> io.stop
-    kvTransfer.io.deq <> io.deq
-
-    kvTransfer.io.bufferSelect <> io.bufferSelect
+    // kvTransfer inputs
+    kvTransfer.io.bufferInputSelect <> io.bufferInputSelect
     kvTransfer.io.command <> io.command
-    kvTransfer.io.outputKeyOnly <> io.outputKeyOnly
+    kvTransfer.io.stop <> io.stop
+
+    // kvTransfer outputs
+    kvTransfer.io.deq <> DontCare
+    kvTransfer.io.bufferSelect <> io.bufferSelect
     kvTransfer.io.busy <> io.busy
     kvTransfer.io.incrKeyBufferPtr <> io.incrKeyBufferPtr
     kvTransfer.io.clearKeyBuffer <> io.clearKeyBuffer
-    kvTransfer.io.isLastKeyChunk <> io.isLastKeyChunk
+
+    // kvTransfer outputs to buffers
+    kvTransfer.io.outputKeyOnly <> io.outputKeyOnly
+    
+    kvTransfer.io.isOutputKey <> io.isOutputKey
+    kvTransfer.io.lastOutput <> io.lastOutput
+    kvTransfer.io.resetBufferRead <> io.resetBufferRead
+
+    // connect KV transfer module to buffers
+    kvTransfer.io.enq <> DontCare
+    kvTransfer.io.lastInput <> DontCare
+    kvTransfer.io.isInputKey <> DontCare
 
     for (i <- 0 until numberOfBuffers) {
         when(kvTransfer.io.bufferSelect === i.U) {
             kvTransfer.io.enq <> io.enq(i)
             kvTransfer.io.lastInput := io.lastInputs(i)
+            kvTransfer.io.isInputKey := io.isInputKey(i)
         }.otherwise {
             io.enq(i).ready := false.B
             io.enq(i).bits <> DontCare
             io.enq(i).valid <> DontCare
         }
+    }
+
+    when (kvTransfer.io.outputSelect) {
+        io.deqKvPair <> kvTransfer.io.deq
+        io.deq.ready := DontCare
+        io.deq.valid := false.B
+        io.deq.bits := DontCare
+    } .otherwise {
+        io.deq <> kvTransfer.io.deq
+        io.deqKvPair.ready := DontCare
+        io.deqKvPair.bits := DontCare
+        io.deqKvPair.valid := false.B
     }
 }
 
