@@ -22,12 +22,14 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     // inputs and outputs for control of the module
     val command = Input(UInt(2.W))
     val stop = Input(Bool())
+    // TODO: bufferInputSelect can be replaced with mask
     val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
+    val mask = Input(UInt(numberOfBuffers.W))
     val busy = Output(Bool())
 
     // outputs for key buffer and KV output buffer
     val deq = Decoupled(UInt(busWidth.W))
-    val incrKeyBufferPtr = Output(Bool())
+    val incrKeyBufferPtr = Output(Bool())  // only valid if deq.valid is True
     val clearKeyBuffer = Output(Bool())
     val isOutputKey = Output(Bool())
     val lastOutput = Output(Bool()) // outputs whatever current key chunk is the last one, only valid if deq.valid is True
@@ -37,12 +39,12 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
 /** A class for KV transfer module. 
  *  This module is used to transfer KV pairs to Comparator module when requested.
  *  The module supports following commands:
- *    00:
+ *    Command 0 (b00):
  *      Does nothing, waits for the command.
- *    01: 
+ *    Command 1 (b01): 
  *      Transfers key chunks from all buffers, one-by-one, until all buffers are empty.
- *    10:
- *      Transfers selected KV pair from KV Ring Buffer to KV Output buffer.
+ *    Command 2 (b10):
+ *      Transfers KV pair from selected KV Ring Buffer to KV Output buffer.
  *
  *  @param busWidth, the number of bits that can be read from memory at once.
  *  @param numberOfBuffers, the number of buffers that will be connected to the KV transfer module.
@@ -58,22 +60,35 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     val state = RegInit(idle)
     val data = RegInit(0.U(busWidth.W))
     val lastKeyChunk = RegInit(false.B)
+    val mask = RegInit(0.U(numberOfBuffers.W))
 
-    // Used by command 1 (b01) and 2 (b10)
+    // Used by command 1 and 2
     val bufferIdx = RegInit(0.U(log2Ceil(numberOfBuffers).W))
 
-    // Used by command 1 (b01)
+    // Used by command 1
     val moreChunksToLoad = RegInit(VecInit(Seq.fill(numberOfBuffers)(true.B)))
     val allBuffersEmpty = Cat(moreChunksToLoad) === 0.U
 
+    val nextIndexSelector = Module(new NextIndexSelector(numberOfBuffers))
+    nextIndexSelector.io.mask := moreChunksToLoad.asUInt
+    nextIndexSelector.io.currentIndex := bufferIdx
+
     switch (state) {
         is (idle) {
-            // Reset variables
-            moreChunksToLoad.foreach(_ := true.B)
-
+            // Start command to trasnfer keys to Key Buffer
             when (io.command === "b01".U) {
-                bufferIdx := 0.U
+                bufferIdx := PriorityEncoder(io.mask)
                 state := clearKeyBuffer
+                mask := io.mask
+
+                // Reset moreChunksToLoad
+                for (i <- 0 until numberOfBuffers) {
+                    when (io.mask(i) === 0.U) {
+                        moreChunksToLoad(i) := false.B
+                    } .otherwise {
+                        moreChunksToLoad(i) := true.B
+                    }
+                }
             }
 
             when (io.command === "b10".U) {
@@ -88,7 +103,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
             when (io.stop === false.B && moreChunksToLoad(bufferIdx) === true.B) {
                 when (io.enq.valid) {
                     when (io.deq.ready) {
-                        bufferIdx := bufferIdx + 1.U
+                        bufferIdx := nextIndexSelector.io.nextIndex
                     } .otherwise {
                         // Data is not transferred this clock cycle, store and wait until it will be received.
                         data := io.enq.bits
@@ -102,7 +117,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                     state := idle
                 } .otherwise {
                     // Only this buffer is empty, move to the next one.
-                    bufferIdx := bufferIdx + 1.U
+                    bufferIdx := nextIndexSelector.io.nextIndex
                 }
             }
 
@@ -117,7 +132,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
         }
         is (waitForTransfer) {
             when (io.deq.ready && !io.stop) {
-                bufferIdx := bufferIdx + 1.U
+                bufferIdx := nextIndexSelector.io.nextIndex
                 state := loadChunk
             }
 
@@ -154,10 +169,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     // input buffers need to be reset when we start loading new chunks, or transfer KV pair
     io.resetBufferRead := state === resetBufferRead || state === clearKeyBuffer
 
-    // this works when we iterate over all buffers, 
-    // but it will not work if we want to load only non-empty buffers
-    // because buffer with index 3 might be skipped.
-    io.incrKeyBufferPtr := bufferIdx === (numberOfBuffers-1).U && (state === loadChunk || state === waitForTransfer)
+    io.incrKeyBufferPtr := nextIndexSelector.io.overflow && (state === loadChunk || state === waitForTransfer)
 
     io.enq.ready := (state === loadChunk && moreChunksToLoad(bufferIdx) === true.B) || (state === transferKvPair && io.deq.ready)
     io.deq.bits := Mux(state === waitForTransfer, data, io.enq.bits)
@@ -182,6 +194,7 @@ class TopKvTransferIO(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Bundl
     val stop = Input(Bool())
     val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
     val busy = Output(Bool())
+    val mask = Input(UInt(numberOfBuffers.W))
 
     // TODO: outputs are copied from KvTransfer module, not good to have duplicate code
     val bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
@@ -204,15 +217,16 @@ class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module 
 
     val kvTransfer = Module(new KvTransfer(busWidth, numberOfBuffers))
 
-    // kvTransfer inputs
+    // kvTransfer controls
     kvTransfer.io.bufferInputSelect <> io.bufferInputSelect
     kvTransfer.io.command <> io.command
     kvTransfer.io.stop <> io.stop
+    kvTransfer.io.busy <> io.busy
+    kvTransfer.io.mask <> io.mask
 
     // kvTransfer outputs
     kvTransfer.io.deq <> DontCare
     kvTransfer.io.bufferSelect <> io.bufferSelect
-    kvTransfer.io.busy <> io.busy
     kvTransfer.io.incrKeyBufferPtr <> io.incrKeyBufferPtr
     kvTransfer.io.clearKeyBuffer <> io.clearKeyBuffer
 
