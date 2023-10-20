@@ -14,6 +14,12 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.valid.poke(true.B)
             dut.io.incrWritePtr.poke(false.B)
             dut.io.lastInput.poke(false.B)
+            dut.io.mask.poke("b1111".U)
+
+            // clear key buffer before loading
+            dut.io.clearBuffer.poke(true.B)
+            dut.clock.step()
+            dut.io.clearBuffer.poke(false.B)
 
             // Write two rows of key chunks
             for (i <- 0 until 4) {
@@ -111,6 +117,12 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.valid.poke(true.B)
             dut.io.incrWritePtr.poke(false.B)
             dut.io.lastInput.poke(false.B)
+            dut.io.mask.poke("b1111".U)
+
+            // clear key buffer before loading
+            dut.io.clearBuffer.poke(true.B)
+            dut.clock.step()
+            dut.io.clearBuffer.poke(false.B)
 
             // Write first row of key chunks
             for (i <- 0 until 4) {
@@ -213,6 +225,12 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.incrWritePtr.poke(false.B)
             dut.io.empty.expect(true.B)
             dut.io.lastInput.poke(false.B)
+            dut.io.mask.poke("b1111".U)
+
+            // clear key buffer before loading
+            dut.io.clearBuffer.poke(true.B)
+            dut.clock.step()
+            dut.io.clearBuffer.poke(false.B)
 
             // Write one row of key chunks
             for (i <- 0 until 4) {
@@ -284,6 +302,12 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.deq.ready.poke(false.B)
             dut.io.enq.valid.poke(true.B)
             dut.io.incrWritePtr.poke(false.B)
+            dut.io.mask.poke("b1111".U)
+
+            // clear key buffer before loading
+            dut.io.clearBuffer.poke(true.B)
+            dut.clock.step()
+            dut.io.clearBuffer.poke(false.B)
 
             // Write one row of key chunks
             for (i <- 0 until 4) {
@@ -316,6 +340,12 @@ class KeyBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.deq.ready.poke(false.B)
             dut.io.enq.valid.poke(true.B)
             dut.io.lastInput.poke(false.B)
+            dut.io.mask.poke("b1111".U)
+
+            // clear key buffer before loading
+            dut.io.clearBuffer.poke(true.B)
+            dut.clock.step()
+            dut.io.clearBuffer.poke(false.B)
 
             // Write first row of key chunks
             for (i <- 0 until 4) {
