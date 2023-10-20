@@ -14,6 +14,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
         test(new Merger(busWidth = 4, numberOfBuffers = 4)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // reset Merger for a new comparison round
             dut.io.reset.poke(true.B)
+            dut.io.mask.poke("b1111".U)
             dut.clock.step()
             dut.io.reset.poke(false.B)
 
@@ -113,6 +114,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
         test(new Merger(busWidth = 4, numberOfBuffers = 4)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // reset Merger for a new comparison round
             dut.io.reset.poke(true.B)
+            dut.io.mask.poke("b1111".U)
             dut.clock.step()
             dut.io.reset.poke(false.B)
             
@@ -202,6 +204,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
         test(new Merger(busWidth = 4, numberOfBuffers = 4)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             // reset Merger for a new comparison round
             dut.io.reset.poke(true.B)
+            dut.io.mask.poke("b1111".U)
             dut.clock.step()
             dut.io.reset.poke(false.B)
             

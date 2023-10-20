@@ -5,18 +5,19 @@ import chisel3.util._
 
 
 class MergerIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
+    // Inputs from KeyBuffer module
     val enq = Flipped(Decoupled(UInt(busWidth.W)))
-
     val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
     val lastInput = Input(Bool())
 
+    // Control inputs from Controller module
     val reset = Input(Bool())
+    val mask = Input(UInt(numberOfBuffers.W))
 
+    // Output for Controller module
     val isResultValid = Output(Bool())
-
     val haveWinner = Output(Bool())
     val winnerIndex = Output(UInt(log2Ceil(numberOfBuffers).W))
-
     val nextKvPairsToLoad = Output(Vec(numberOfBuffers, Bool()))
 }
 
@@ -42,6 +43,9 @@ class MergerIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
  * Important: after the winner is found, the module will not allow any changes to the inputs.
  *            It will keep returning the winning results and wait for reset signal.
  *            The outside module is responsible for resetting the Merger module.
+ * 
+ * Important: when io.reset is set to true, io.mask needs to be set by control module as well.
+ *            This new mask will be used as a starting one for the comparison.
  *
  *  @param busWidth, the number of bits .
  *  @param numberOfBuffers, how many buffers will be compared.
@@ -101,7 +105,7 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
 
         is(haveWinner) {
             when (io.reset) {
-                mask := ((1 << numberOfBuffers) - 1).U(numberOfBuffers.W)
+                mask := io.mask
                 state := comparingKeyChunks
             }
         }

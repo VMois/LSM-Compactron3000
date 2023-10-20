@@ -28,6 +28,7 @@ class TestKvTransferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     val command = Input(UInt(2.W))
     val stop = Input(Bool())
     val busy = Output(Bool())
+    val mask = Input(UInt(numberOfBuffers.W))
 }
 
 class TestKeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
@@ -40,6 +41,7 @@ class TestKeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
 
 class TestMergerIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     val reset = Input(Bool())
+    val mask = Input(UInt(numberOfBuffers.W))
 
     val isResultValid = Output(Bool())
     val haveWinner = Output(Bool())
@@ -96,6 +98,7 @@ class TopTestModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     topKvTransfer.io.stop <> io.kvTransfer.stop
     topKvTransfer.io.command <> io.kvTransfer.command
     topKvTransfer.io.busy <> io.kvTransfer.busy
+    topKvTransfer.io.mask <> io.kvTransfer.mask
     topKvTransfer.io.deqKvPair <> DontCare
 
     // connect TopKvTransfer to KeyBuffer
@@ -154,6 +157,7 @@ class TopTestMergerModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     topKvTransfer.io.stop <> io.kvTransfer.stop
     topKvTransfer.io.command <> io.kvTransfer.command
     topKvTransfer.io.busy <> io.kvTransfer.busy
+    topKvTransfer.io.mask <> io.kvTransfer.mask
 
     // connect TopKvTransfer to KeyBuffer
     keyBuffer.io.enq <> topKvTransfer.io.deq
@@ -173,6 +177,7 @@ class TopTestMergerModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     io.merger.winnerIndex <> merger.io.winnerIndex
     io.merger.nextKvPairsToLoad <> merger.io.nextKvPairsToLoad
     io.merger.reset <> merger.io.reset
+    io.merger.mask <> merger.io.mask
 
     // Connect output of KvTransfer to input of KVOutputBuffer
     kvOutputBuffer.io.enq <> topKvTransfer.io.deqKvPair
@@ -257,6 +262,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
 
             // Send command to KvTransfer to start filling KeyBuffer with chunks
             dut.io.kvTransfer.command.poke("b01".U)
+            dut.io.kvTransfer.mask.poke("b1111".U)
             dut.clock.step()
             dut.io.kvTransfer.command.poke("b00".U)
 
@@ -348,6 +354,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
                 dut.io.buffers(i).isInputKey.poke(false.B)
             }
             dut.io.merger.reset.poke(true.B)
+            dut.io.merger.mask.poke("b1111".U)
             dut.clock.step()
             dut.io.merger.reset.poke(false.B)
 
@@ -428,6 +435,7 @@ class KvRingBuffersAndKvTransferAndKeyBufferSpec extends AnyFreeSpec with Chisel
 
             // Send command to KvTransfer to start filling KeyBuffer with chunks
             dut.io.kvTransfer.command.poke("b01".U)
+            dut.io.kvTransfer.mask.poke("b1111".U)
             dut.clock.step()
             dut.io.kvTransfer.command.poke("b00".U)
 
