@@ -5,19 +5,25 @@ import chisel3.util._
 
 
 class KVRingBufferIO(busWidth: Int) extends Bundle {
+    // Input for KV pairs
     val enq = Flipped(Decoupled(UInt(busWidth.W)))
-    val deq = Decoupled(UInt(busWidth.W))
-
-    var moveReadPtr = Input(Bool()) // request buffer to stop reading and move read pointer to the next KV pair
-    var resetRead = Input(Bool()) // request buffer to start reading current KV pair from the beginning
-
-    val outputKeyOnly = Input(Bool()) // indicates that only key should be outputted by the buffer
     val lastInput = Input(Bool()) // indicates the last input is presented to the buffer
     val isInputKey = Input(Bool()) // is input value a key or a value
 
+    // Control inputs
+    var moveReadPtr = Input(Bool()) // request buffer to stop reading and move read pointer to the next KV pair
+    var resetRead = Input(Bool()) // request buffer to start reading current KV pair from the beginning
+
+    // Outputs
+    val deq = Decoupled(UInt(busWidth.W))
+    val outputKeyOnly = Input(Bool()) // indicates that only key should be outputted by the buffer
     val lastOutput = Output(Bool()) // indicates the last output is presented by the buffer
     val isOutputKey = Output(Bool()) // is output value a key or a value
 
+    // Outputs, hack to output key and value len
+    val metadataValid = Output(Bool())
+
+    // Status outputs
     val empty = Output(Bool())
     val full = Output(Bool())
 }
@@ -310,6 +316,8 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     io.lastOutput := (outputStateReg === readLastValueChunk || outputStateReg === waitForReadLastValueChunk) || ((outputStateReg === readLastKeyChunk || outputStateReg === waitForReadLastKeyChunk) && io.outputKeyOnly)
     io.empty := emptyReg
     io.full := fullReg
+
+    io.metadataValid := outputStateReg === outputReadKeyLen || outputStateReg === outputReadValueLen
 }
 
 object KvRingBufferMain extends App {
