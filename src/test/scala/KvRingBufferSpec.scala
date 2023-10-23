@@ -275,6 +275,77 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
         }
     }
 
+    "Should write two KV pairs and read two back" in {
+        test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8, autoReadNextPair = true)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            setDefaultValues(dut)
+            dut.clock.step()
+
+            // Write KV pair 1
+            dut.io.enq.ready.expect(true.B)
+            dut.io.enq.bits.poke(0xA.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.isInputKey.poke(false.B)
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xC.U)
+            dut.clock.step()
+            dut.io.enq.valid.poke(false.B)
+
+            while (dut.io.enq.ready.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            // Write KV pair 2
+            dut.io.enq.bits.poke(0xB.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.isInputKey.poke(false.B)
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xD.U)
+            dut.clock.step()
+            dut.io.enq.valid.poke(false.B)
+
+            // Start reading KV pairs
+            dut.io.deq.ready.poke(true.B)
+
+            while (dut.io.deq.valid.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+            
+            // Read first KV pair
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xC.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.clock.step()
+
+            while (dut.io.deq.valid.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            // Read second KV pair
+            dut.io.deq.bits.expect(0xB.U)
+            dut.io.isOutputKey.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xD.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.valid.expect(false.B)
+            dut.io.empty.expect(true.B)
+            dut.io.full.expect(false.B)
+        }
+    }
+
     "Should move to read the next KV pair" in {
         test(new KVRingBuffer(4, busWidth = 4, keySize = 12, valueSize = 12, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             setDefaultValues(dut)

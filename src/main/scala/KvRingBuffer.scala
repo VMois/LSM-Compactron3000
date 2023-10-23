@@ -39,7 +39,7 @@ class KVRingBufferIO(busWidth: Int) extends Bundle {
  *  @param valueSize, the maximum size of the value in bits.
  *  @param metadataSize, the maximum size of the metadata in bits.
  */
-class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: Int = 16, metadataSize: Int = 8) extends Module {
+class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: Int = 16, metadataSize: Int = 8, autoReadNextPair: Boolean = false) extends Module {
     assert (depth > 1, "The KV buffer depth must be greater than 1")
     assert (busWidth > 0, "Bus width must be greater than 0")
     assert (keySize > 0, "Key size must be greater than 0")
@@ -267,6 +267,9 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
                 when(io.deq.ready) {
                     when(readValueChunkPtr === valueLen - 1.U) {
                         outputStateReg := readLastValueChunk
+                        // TODO: need to investigate why this is needed here, 
+                        //       some tests fail if you comment it out, 
+                        //       it should be enough to set emptyReg in readLast* states
                         emptyReg := nextRead === writePtr
                     } otherwise {
                         readValueChunkPtr := readValueChunkPtr + 1.U
@@ -283,6 +286,9 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
             when(io.deq.ready && !moveOrResetRequested) {
                 when(readValueChunkPtr === valueLen - 1.U) {
                     outputStateReg := readLastValueChunk
+                    // TODO: need to investigate why this is needed here, 
+                    //       some tests fail if you comment it out, 
+                    //       it should be enough to set emptyReg in readLast* states
                     emptyReg := nextRead === writePtr
                 } otherwise {
                     readValueChunkPtr := readValueChunkPtr + 1.U
@@ -294,6 +300,10 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
             when (!moveOrResetRequested) {
                 when(io.deq.ready) {
                     outputStateReg := requestKeyLen
+                    emptyReg := nextRead === writePtr
+                    if (autoReadNextPair) {
+                        incrRead := true.B
+                    }
                 }
                 .otherwise {
                     shadowReg := data
@@ -305,6 +315,11 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         is(waitForReadLastValueChunk) {
             when(io.deq.ready && !moveOrResetRequested) {
                 outputStateReg := requestKeyLen
+                emptyReg := nextRead === writePtr
+
+                if (autoReadNextPair) {
+                    incrRead := true.B
+                }
             }
         }
     }
