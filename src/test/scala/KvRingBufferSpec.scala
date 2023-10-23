@@ -94,18 +94,28 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.lastInput.poke(true.B)
             dut.clock.step()
 
-            // Wait for KV data to be written to memory
             dut.io.enq.valid.poke(false.B)
             dut.io.lastInput.poke(false.B)
             dut.io.enq.ready.expect(false.B)
-            dut.clock.step(2)
-            dut.io.empty.expect(false.B)
-            dut.io.enq.ready.expect(true.B)
 
-            // delay to read metadata
-            dut.clock.step(2)
-            
-            dut.io.enq.ready.expect(true.B)
+            // wait for metadata to be ready
+            while (dut.io.metadataValid.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            dut.io.empty.expect(false.B)
+
+            // read key len
+            dut.io.deq.bits.expect(2.U)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.metadataValid.expect(true.B)
+            dut.clock.step()
+
+            // read value len
+            dut.io.deq.bits.expect(3.U)
+            dut.io.deq.valid.expect(false.B)
+            dut.io.metadataValid.expect(true.B)
+            dut.clock.step()
             
             // Start reading KV pair
             dut.io.deq.ready.poke(true.B)
