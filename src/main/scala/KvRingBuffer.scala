@@ -250,7 +250,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         is(waitForReadLastKeyChunk) {
             when(io.deq.ready && !moveOrResetRequested) {
                 when(io.outputKeyOnly) {
-                     outputStateReg := requestKeyLen
+                    outputStateReg := requestKeyLen
                 } otherwise {
                     when(valueLen === 1.U) {
                         outputStateReg := readLastValueChunk
@@ -291,6 +291,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
                     //       it should be enough to set emptyReg in readLast* states
                     emptyReg := nextRead === writePtr
                 } otherwise {
+                    outputStateReg := outputReadValue
                     readValueChunkPtr := readValueChunkPtr + 1.U
                 }
             }
