@@ -31,7 +31,7 @@
         }
       },
       "system_ila_0": "",
-      "inverter_0": ""
+      "DummyKvPairFifo_0": ""
     },
     "interface_ports": {
       "DDR": {
@@ -2070,18 +2070,18 @@
           }
         }
       },
-      "inverter_0": {
-        "vlnv": "bme.hu:user:inverter:1.0",
-        "xci_name": "dmaSuperSystem_inverter_0_2",
-        "xci_path": "ip\\dmaSuperSystem_inverter_0_2\\dmaSuperSystem_inverter_0_2.xci",
-        "inst_hier_path": "inverter_0"
+      "DummyKvPairFifo_0": {
+        "vlnv": "bme.hu:user:DummyKvPairFifo:1.1",
+        "xci_name": "dmaSuperSystem_DummyKvPairFifo_0_2",
+        "xci_path": "ip\\dmaSuperSystem_DummyKvPairFifo_0_2\\dmaSuperSystem_DummyKvPairFifo_0_2.xci",
+        "inst_hier_path": "DummyKvPairFifo_0"
       }
     },
     "interface_nets": {
       "axi_dma_0_M_AXIS_MM2S": {
         "interface_ports": [
           "axi_dma_0/M_AXIS_MM2S",
-          "inverter_0/s_axis",
+          "DummyKvPairFifo_0/axis_s",
           "system_ila_0/SLOT_0_AXIS"
         ],
         "hdl_attributes": {
@@ -2113,7 +2113,7 @@
       },
       "inverter_0_m_axis": {
         "interface_ports": [
-          "inverter_0/m_axis",
+          "DummyKvPairFifo_0/axi_m",
           "axi_dma_0/S_AXIS_S2MM",
           "system_ila_0/SLOT_1_AXIS"
         ],
@@ -2169,7 +2169,7 @@
           "axi_mem_intercon/ACLK",
           "axi_mem_intercon/S01_ACLK",
           "system_ila_0/clk",
-          "inverter_0/axi_clk"
+          "DummyKvPairFifo_0/clock"
         ]
       },
       "processing_system7_0_FCLK_RESET0_N": {
@@ -2190,7 +2190,7 @@
           "axi_mem_intercon/ARESETN",
           "axi_mem_intercon/S01_ARESETN",
           "system_ila_0/resetn",
-          "inverter_0/axi_reset_n"
+          "DummyKvPairFifo_0/reset"
         ]
       }
     },

@@ -12,27 +12,27 @@
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.ASSOCIATED_BUSIF">SLOT_0_AXIS:SLOT_1_AXIS</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.ASSOCIATED_PORT"/>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.ASSOCIATED_RESET">resetn</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.CLK_DOMAIN">dmaSuperSystem_processing_system7_0_0_FCLK_CLK0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.CLK_DOMAIN">bd_3b1e_clk</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.FREQ_HZ">100000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.FREQ_TOLERANCE_HZ">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.INSERT_VIP">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.CLK.CLK.PHASE">0.0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.RST.RESETN.INSERT_VIP">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.RST.RESETN.POLARITY">ACTIVE_LOW</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.CLK_DOMAIN">dmaSuperSystem_processing_system7_0_0_FCLK_CLK0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.CLK_DOMAIN"/>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.FREQ_HZ">100000000</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TKEEP">1</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TLAST">1</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TKEEP">0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TLAST">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TREADY">1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TSTRB">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.INSERT_VIP">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.LAYERED_METADATA">undef</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.PHASE">0.0</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TDATA_NUM_BYTES">4</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TDATA_NUM_BYTES">1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TDEST_WIDTH">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TID_WIDTH">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TUSER_WIDTH">0</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.CLK_DOMAIN">dmaSuperSystem_processing_system7_0_0_FCLK_CLK0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.CLK_DOMAIN"/>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.FREQ_HZ">100000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.HAS_TKEEP">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.HAS_TLAST">0</spirit:configurableElementValue>
@@ -41,7 +41,7 @@
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.INSERT_VIP">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.LAYERED_METADATA">undef</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.PHASE">0.0</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.TDATA_NUM_BYTES">4</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.TDATA_NUM_BYTES">1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.TDEST_WIDTH">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.TID_WIDTH">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.TUSER_WIDTH">0</spirit:configurableElementValue>
@@ -3902,12 +3902,12 @@
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.ASSOCIATED_BUSIF" xilinx:valueSource="user" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.ASSOCIATED_PORT" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.ASSOCIATED_RESET" xilinx:valueSource="user" xilinx:valuePermission="bd"/>
-            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd"/>
+            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.CLK_DOMAIN" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.FREQ_HZ" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.FREQ_TOLERANCE_HZ" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.CLK.CLK.PHASE" xilinx:valuePermission="bd"/>
-            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.RST.RESETN.POLARITY" xilinx:valueSource="constant" xilinx:valuePermission="bd"/>
-            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd"/>
+            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.RST.RESETN.POLARITY" xilinx:valuePermission="bd"/>
+            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.CLK_DOMAIN" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.FREQ_HZ" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TKEEP" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.HAS_TLAST" xilinx:valuePermission="bd"/>
@@ -3919,7 +3919,7 @@
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TDEST_WIDTH" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TID_WIDTH" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_0_AXIS.TUSER_WIDTH" xilinx:valuePermission="bd"/>
-            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.CLK_DOMAIN" xilinx:valueSource="default_prop" xilinx:valuePermission="bd"/>
+            <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.CLK_DOMAIN" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.FREQ_HZ" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.HAS_TKEEP" xilinx:valuePermission="bd"/>
             <xilinx:configElementInfo xilinx:referenceId="BUSIFPARAM_VALUE.SLOT_1_AXIS.HAS_TLAST" xilinx:valuePermission="bd"/>
@@ -4140,16 +4140,25 @@
               &quot;boundary&quot;: {
                 &quot;ports&quot;: {
                   &quot;clk&quot;: [ { &quot;direction&quot;: &quot;in&quot; } ],
-                  &quot;SLOT_0_AXIS_tdata&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;31&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
-                  &quot;SLOT_0_AXIS_tkeep&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;3&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
-                  &quot;SLOT_0_AXIS_tlast&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
-                  &quot;SLOT_0_AXIS_tvalid&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
-                  &quot;SLOT_0_AXIS_tready&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
-                  &quot;SLOT_1_AXIS_tdata&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;31&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
-                  &quot;SLOT_1_AXIS_tlast&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
-                  &quot;SLOT_1_AXIS_tvalid&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
-                  &quot;SLOT_1_AXIS_tready&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
-                  &quot;resetn&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ]
+                  &quot;SLOT_0_AXIS_tid&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_0_AXIS_tdest&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_0_AXIS_tdata&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_0_AXIS_tstrb&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
+                  &quot;SLOT_0_AXIS_tkeep&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
+                  &quot;SLOT_0_AXIS_tlast&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;0&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_0_AXIS_tuser&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_0_AXIS_tvalid&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;0&quot;, &quot;size_right&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_0_AXIS_tready&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;0&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
+                  &quot;SLOT_1_AXIS_tid&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_1_AXIS_tdest&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_1_AXIS_tdata&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_1_AXIS_tstrb&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
+                  &quot;SLOT_1_AXIS_tkeep&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
+                  &quot;SLOT_1_AXIS_tlast&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;0&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_1_AXIS_tuser&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;driver_value&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_1_AXIS_tvalid&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;0&quot;, &quot;size_right&quot;: &quot;0&quot; } ],
+                  &quot;SLOT_1_AXIS_tready&quot;: [ { &quot;direction&quot;: &quot;in&quot;, &quot;size_left&quot;: &quot;0&quot;, &quot;size_right&quot;: &quot;0&quot;, &quot;driver_value&quot;: &quot;1&quot; } ],
+                  &quot;resetn&quot;: [ { &quot;direction&quot;: &quot;in&quot; } ]
                 },
                 &quot;interfaces&quot;: {
                   &quot;CLK.clk&quot;: {
@@ -4160,7 +4169,7 @@
                       &quot;FREQ_HZ&quot;: [ { &quot;value&quot;: &quot;100000000&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;FREQ_TOLERANCE_HZ&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;PHASE&quot;: [ { &quot;value&quot;: &quot;0.0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;float&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;CLK_DOMAIN&quot;: [ { &quot;value&quot;: &quot;dmaSuperSystem_processing_system7_0_0_FCLK_CLK0&quot;, &quot;value_src&quot;: &quot;default_prop&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;CLK_DOMAIN&quot;: [ { &quot;value&quot;: &quot;bd_3b1e_clk&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;ASSOCIATED_BUSIF&quot;: [ { &quot;value&quot;: &quot;SLOT_0_AXIS:SLOT_1_AXIS&quot;, &quot;value_src&quot;: &quot;user&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;ASSOCIATED_PORT&quot;: [ { &quot;value&quot;: &quot;&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;ASSOCIATED_RESET&quot;: [ { &quot;value&quot;: &quot;resetn&quot;, &quot;value_src&quot;: &quot;user&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
@@ -4175,7 +4184,7 @@
                     &quot;abstraction_type&quot;: &quot;xilinx.com:signal:reset_rtl:1.0&quot;,
                     &quot;mode&quot;: &quot;slave&quot;,
                     &quot;parameters&quot;: {
-                      &quot;POLARITY&quot;: [ { &quot;value&quot;: &quot;ACTIVE_LOW&quot;, &quot;value_src&quot;: &quot;constant&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;POLARITY&quot;: [ { &quot;value&quot;: &quot;ACTIVE_LOW&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;INSERT_VIP&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;resolve_type&quot;: &quot;user&quot;, &quot;format&quot;: &quot;long&quot;, &quot;usage&quot;: &quot;simulation.rtl&quot;, &quot;is_static_object&quot;: false } ]
                     },
                     &quot;port_maps&quot;: {
@@ -4187,34 +4196,7 @@
                     &quot;abstraction_type&quot;: &quot;xilinx.com:interface:axis_rtl:1.0&quot;,
                     &quot;mode&quot;: &quot;monitor&quot;,
                     &quot;parameters&quot;: {
-                      &quot;TDATA_NUM_BYTES&quot;: [ { &quot;value&quot;: &quot;4&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;TDEST_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;TID_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;TUSER_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;HAS_TREADY&quot;: [ { &quot;value&quot;: &quot;1&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;HAS_TSTRB&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;HAS_TKEEP&quot;: [ { &quot;value&quot;: &quot;1&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;HAS_TLAST&quot;: [ { &quot;value&quot;: &quot;1&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;FREQ_HZ&quot;: [ { &quot;value&quot;: &quot;100000000&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;PHASE&quot;: [ { &quot;value&quot;: &quot;0.0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;float&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;CLK_DOMAIN&quot;: [ { &quot;value&quot;: &quot;dmaSuperSystem_processing_system7_0_0_FCLK_CLK0&quot;, &quot;value_src&quot;: &quot;default_prop&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;LAYERED_METADATA&quot;: [ { &quot;value&quot;: &quot;undef&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;INSERT_VIP&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;resolve_type&quot;: &quot;user&quot;, &quot;format&quot;: &quot;long&quot;, &quot;usage&quot;: &quot;simulation.rtl&quot;, &quot;is_static_object&quot;: false } ]
-                    },
-                    &quot;port_maps&quot;: {
-                      &quot;TDATA&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tdata&quot; } ],
-                      &quot;TKEEP&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tkeep&quot; } ],
-                      &quot;TLAST&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tlast&quot; } ],
-                      &quot;TVALID&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tvalid&quot; } ],
-                      &quot;TREADY&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tready&quot; } ]
-                    }
-                  },
-                  &quot;SLOT_1_AXIS&quot;: {
-                    &quot;vlnv&quot;: &quot;xilinx.com:interface:axis:1.0&quot;,
-                    &quot;abstraction_type&quot;: &quot;xilinx.com:interface:axis_rtl:1.0&quot;,
-                    &quot;mode&quot;: &quot;monitor&quot;,
-                    &quot;parameters&quot;: {
-                      &quot;TDATA_NUM_BYTES&quot;: [ { &quot;value&quot;: &quot;4&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;TDATA_NUM_BYTES&quot;: [ { &quot;value&quot;: &quot;1&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;TDEST_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;TID_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;TUSER_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
@@ -4224,13 +4206,49 @@
                       &quot;HAS_TLAST&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;FREQ_HZ&quot;: [ { &quot;value&quot;: &quot;100000000&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;PHASE&quot;: [ { &quot;value&quot;: &quot;0.0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;float&quot;, &quot;is_static_object&quot;: false } ],
-                      &quot;CLK_DOMAIN&quot;: [ { &quot;value&quot;: &quot;dmaSuperSystem_processing_system7_0_0_FCLK_CLK0&quot;, &quot;value_src&quot;: &quot;default_prop&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;CLK_DOMAIN&quot;: [ { &quot;value&quot;: &quot;&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;LAYERED_METADATA&quot;: [ { &quot;value&quot;: &quot;undef&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
                       &quot;INSERT_VIP&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;resolve_type&quot;: &quot;user&quot;, &quot;format&quot;: &quot;long&quot;, &quot;usage&quot;: &quot;simulation.rtl&quot;, &quot;is_static_object&quot;: false } ]
                     },
                     &quot;port_maps&quot;: {
+                      &quot;TID&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tid&quot; } ],
+                      &quot;TDEST&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tdest&quot; } ],
+                      &quot;TDATA&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tdata&quot; } ],
+                      &quot;TSTRB&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tstrb&quot; } ],
+                      &quot;TKEEP&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tkeep&quot; } ],
+                      &quot;TLAST&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tlast&quot; } ],
+                      &quot;TUSER&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tuser&quot; } ],
+                      &quot;TVALID&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tvalid&quot; } ],
+                      &quot;TREADY&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_0_AXIS_tready&quot; } ]
+                    }
+                  },
+                  &quot;SLOT_1_AXIS&quot;: {
+                    &quot;vlnv&quot;: &quot;xilinx.com:interface:axis:1.0&quot;,
+                    &quot;abstraction_type&quot;: &quot;xilinx.com:interface:axis_rtl:1.0&quot;,
+                    &quot;mode&quot;: &quot;monitor&quot;,
+                    &quot;parameters&quot;: {
+                      &quot;TDATA_NUM_BYTES&quot;: [ { &quot;value&quot;: &quot;1&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;TDEST_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;TID_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;TUSER_WIDTH&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;HAS_TREADY&quot;: [ { &quot;value&quot;: &quot;1&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;HAS_TSTRB&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;HAS_TKEEP&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;HAS_TLAST&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;FREQ_HZ&quot;: [ { &quot;value&quot;: &quot;100000000&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;long&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;PHASE&quot;: [ { &quot;value&quot;: &quot;0.0&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;format&quot;: &quot;float&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;CLK_DOMAIN&quot;: [ { &quot;value&quot;: &quot;&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;LAYERED_METADATA&quot;: [ { &quot;value&quot;: &quot;undef&quot;, &quot;value_permission&quot;: &quot;bd&quot;, &quot;resolve_type&quot;: &quot;generated&quot;, &quot;is_static_object&quot;: false } ],
+                      &quot;INSERT_VIP&quot;: [ { &quot;value&quot;: &quot;0&quot;, &quot;resolve_type&quot;: &quot;user&quot;, &quot;format&quot;: &quot;long&quot;, &quot;usage&quot;: &quot;simulation.rtl&quot;, &quot;is_static_object&quot;: false } ]
+                    },
+                    &quot;port_maps&quot;: {
+                      &quot;TID&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tid&quot; } ],
+                      &quot;TDEST&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tdest&quot; } ],
                       &quot;TDATA&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tdata&quot; } ],
+                      &quot;TSTRB&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tstrb&quot; } ],
+                      &quot;TKEEP&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tkeep&quot; } ],
                       &quot;TLAST&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tlast&quot; } ],
+                      &quot;TUSER&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tuser&quot; } ],
                       &quot;TVALID&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tvalid&quot; } ],
                       &quot;TREADY&quot;: [ { &quot;physical_name&quot;: &quot;SLOT_1_AXIS_tready&quot; } ]
                     }
