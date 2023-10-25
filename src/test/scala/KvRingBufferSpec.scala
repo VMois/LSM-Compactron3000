@@ -492,11 +492,14 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.bits.poke(0xC.U)
             dut.clock.step()
 
-            dut.io.isInputKey.poke(false.B)
-            dut.io.lastInput.poke(true.B)
             dut.io.enq.bits.poke(0xD.U)
             dut.clock.step()
 
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xE.U)
+            dut.clock.step()
+
+            dut.io.lastInput.poke(false.B)
             dut.io.enq.valid.poke(false.B)
 
             // Reading KV pair with delay
@@ -555,18 +558,39 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.deq.ready.poke(false.B)
             dut.io.deq.bits.expect(0xD.U)
             dut.io.isOutputKey.expect(false.B)
-            dut.io.lastOutput.expect(true.B)
+            dut.io.lastOutput.expect(false.B)
             dut.io.deq.valid.expect(true.B)
             dut.clock.step()
 
             dut.io.deq.bits.expect(0xD.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.ready.poke(true.B)
+            dut.io.deq.bits.expect(0xD.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(false.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            // Check if third value chunk is kept until 'ready' asserted
+            dut.io.deq.ready.poke(false.B)
+            dut.io.deq.bits.expect(0xE.U)
+            dut.io.isOutputKey.expect(false.B)
+            dut.io.lastOutput.expect(true.B)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.bits.expect(0xE.U)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(true.B)
             dut.io.deq.valid.expect(true.B)
             dut.clock.step()
 
             dut.io.deq.ready.poke(true.B)
-            dut.io.deq.bits.expect(0xD.U)
+            dut.io.deq.bits.expect(0xE.U)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(true.B)
             dut.io.deq.valid.expect(true.B)
