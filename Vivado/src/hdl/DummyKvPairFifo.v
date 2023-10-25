@@ -232,13 +232,13 @@ module KVRingBuffer(
   output        io_metadataValid
 );
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
-  reg [31:0] _RAND_1;
+  reg [31:0] _RAND_2;
 `endif // RANDOMIZE_GARBAGE_ASSIGN
 `ifdef RANDOMIZE_MEM_INIT
   reg [31:0] _RAND_0;
 `endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
-  reg [31:0] _RAND_2;
+  reg [31:0] _RAND_1;
   reg [31:0] _RAND_3;
   reg [31:0] _RAND_4;
   reg [31:0] _RAND_5;
@@ -252,30 +252,27 @@ module KVRingBuffer(
   reg [31:0] _RAND_13;
   reg [31:0] _RAND_14;
   reg [31:0] _RAND_15;
-  reg [31:0] _RAND_16;
 `endif // RANDOMIZE_REG_INIT
   reg [31:0] mem [0:1279]; // @[KvRingBuffer.scala 84:26]
-  wire  mem_data_en; // @[KvRingBuffer.scala 84:26]
-  wire [10:0] mem_data_addr; // @[KvRingBuffer.scala 84:26]
+  wire  mem_data_en; // @[KvRingBuffer.scala 168:{24,24} 84:{26,26}]
+  reg [10:0] mem_data_addr; // @[KvRingBuffer.scala 84:26]
   wire [31:0] mem_data_data; // @[KvRingBuffer.scala 84:26]
-  wire [31:0] mem_MPORT_data; // @[KvRingBuffer.scala 84:26]
+  wire [31:0] mem_MPORT_data; // @[KvRingBuffer.scala 84:26 127:38]
   wire [10:0] mem_MPORT_addr; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_mask; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_en; // @[KvRingBuffer.scala 84:26]
-  wire [31:0] mem_MPORT_1_data; // @[KvRingBuffer.scala 84:26]
+  wire  mem_MPORT_mask; // @[KvRingBuffer.scala 84:26 127:38]
+  wire  mem_MPORT_en; // @[KvRingBuffer.scala 84:26 124:27 84:26]
+  wire [31:0] mem_MPORT_1_data; // @[KvRingBuffer.scala 84:26 127:38]
   wire [10:0] mem_MPORT_1_addr; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_1_mask; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_1_en; // @[KvRingBuffer.scala 84:26]
+  wire  mem_MPORT_1_mask; // @[KvRingBuffer.scala 84:26 127:38]
+  wire  mem_MPORT_1_en; // @[KvRingBuffer.scala 84:26 124:27 84:26]
   wire [31:0] mem_MPORT_2_data; // @[KvRingBuffer.scala 84:26]
   wire [10:0] mem_MPORT_2_addr; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_2_mask; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_2_en; // @[KvRingBuffer.scala 84:26]
+  wire  mem_MPORT_2_mask; // @[KvRingBuffer.scala 84:26 124:27]
+  wire  mem_MPORT_2_en; // @[KvRingBuffer.scala 84:26 124:27 84:26]
   wire [31:0] mem_MPORT_3_data; // @[KvRingBuffer.scala 84:26]
   wire [10:0] mem_MPORT_3_addr; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_3_mask; // @[KvRingBuffer.scala 84:26]
-  wire  mem_MPORT_3_en; // @[KvRingBuffer.scala 84:26]
-  reg  mem_data_en_pipe_0;
-  reg [10:0] mem_data_addr_pipe_0;
+  wire  mem_MPORT_3_mask; // @[KvRingBuffer.scala 84:26 124:27]
+  wire  mem_MPORT_3_en; // @[KvRingBuffer.scala 84:26 124:27 84:26]
   reg [1:0] readPtr; // @[KvRingBuffer.scala 75:29]
   wire [1:0] _nextVal_T_2 = readPtr + 2'h1; // @[KvRingBuffer.scala 76:63]
   wire [1:0] nextRead = readPtr == 2'h3 ? 2'h0 : _nextVal_T_2; // @[KvRingBuffer.scala 76:26]
@@ -295,8 +292,6 @@ module KVRingBuffer(
   wire [1:0] _nextVal_T_5 = writePtr + 2'h1; // @[KvRingBuffer.scala 76:63]
   wire [1:0] nextWrite = writePtr == 2'h3 ? 2'h0 : _nextVal_T_5; // @[KvRingBuffer.scala 76:26]
   reg [1:0] inputStateReg; // @[KvRingBuffer.scala 121:32]
-  wire  _T = 2'h0 == inputStateReg; // @[KvRingBuffer.scala 124:27]
-  wire  _T_13 = 2'h1 == inputStateReg; // @[KvRingBuffer.scala 124:27]
   wire  _GEN_51 = 2'h1 == inputStateReg ? 1'h0 : 2'h2 == inputStateReg; // @[KvRingBuffer.scala 124:27 84:26]
   wire  incrWrite = 2'h0 == inputStateReg ? 1'h0 : _GEN_51; // @[KvRingBuffer.scala 124:27 84:26]
   reg [9:0] writeKeyChunkPtr; // @[KvRingBuffer.scala 75:29]
@@ -415,29 +410,28 @@ module KVRingBuffer(
   wire  _io_deq_valid_T_9 = outputStateReg == 4'ha; // @[KvRingBuffer.scala 347:232]
   wire  _io_deq_valid_T_11 = outputStateReg == 4'h9; // @[KvRingBuffer.scala 347:273]
   wire  _io_deq_valid_T_13 = outputStateReg == 4'hb; // @[KvRingBuffer.scala 347:312]
-  assign mem_data_en = mem_data_en_pipe_0;
-  assign mem_data_addr = mem_data_addr_pipe_0;
+  assign mem_data_en = 1'h1; // @[KvRingBuffer.scala 168:{24,24} 84:26]
   `ifndef RANDOMIZE_GARBAGE_ASSIGN
   assign mem_data_data = mem[mem_data_addr]; // @[KvRingBuffer.scala 84:26]
   `else
-  assign mem_data_data = mem_data_addr >= 11'h500 ? _RAND_1[31:0] : mem[mem_data_addr]; // @[KvRingBuffer.scala 84:26]
+  assign mem_data_data = mem_data_addr >= 11'h500 ? _RAND_2[31:0] : mem[mem_data_addr]; // @[KvRingBuffer.scala 84:26]
   `endif // RANDOMIZE_GARBAGE_ASSIGN
-  assign mem_MPORT_data = io_enq_bits;
+  assign mem_MPORT_data = io_enq_bits; // @[KvRingBuffer.scala 127:38]
   assign mem_MPORT_addr = {{1'd0}, _T_7};
-  assign mem_MPORT_mask = 1'h1;
-  assign mem_MPORT_en = _T & _GEN_22;
-  assign mem_MPORT_1_data = io_enq_bits;
+  assign mem_MPORT_mask = 1'h1; // @[KvRingBuffer.scala 127:38]
+  assign mem_MPORT_en = 2'h0 == inputStateReg & _GEN_22; // @[KvRingBuffer.scala 124:27 84:26]
+  assign mem_MPORT_1_data = io_enq_bits; // @[KvRingBuffer.scala 127:38]
   assign mem_MPORT_1_addr = {{1'd0}, _T_12};
-  assign mem_MPORT_1_mask = 1'h1;
-  assign mem_MPORT_1_en = _T & _GEN_28;
+  assign mem_MPORT_1_mask = 1'h1; // @[KvRingBuffer.scala 127:38]
+  assign mem_MPORT_1_en = 2'h0 == inputStateReg & _GEN_28; // @[KvRingBuffer.scala 124:27 84:26]
   assign mem_MPORT_2_data = {{22'd0}, writeKeyChunkPtr};
   assign mem_MPORT_2_addr = {{5'd0}, _T_3};
-  assign mem_MPORT_2_mask = 1'h1;
-  assign mem_MPORT_2_en = _T ? 1'h0 : _T_13;
+  assign mem_MPORT_2_mask = 1'h1; // @[KvRingBuffer.scala 124:27]
+  assign mem_MPORT_2_en = 2'h0 == inputStateReg ? 1'h0 : 2'h1 == inputStateReg; // @[KvRingBuffer.scala 124:27 84:26]
   assign mem_MPORT_3_data = {{22'd0}, writeValueChunkPtr};
   assign mem_MPORT_3_addr = {{5'd0}, _T_18};
-  assign mem_MPORT_3_mask = 1'h1;
-  assign mem_MPORT_3_en = _T ? 1'h0 : _GEN_51;
+  assign mem_MPORT_3_mask = 1'h1; // @[KvRingBuffer.scala 124:27]
+  assign mem_MPORT_3_en = 2'h0 == inputStateReg ? 1'h0 : _GEN_51; // @[KvRingBuffer.scala 124:27 84:26]
   assign io_deq_valid = outputStateReg == 4'h4 | outputStateReg == 4'h6 | outputStateReg == 4'h5 | outputStateReg == 4'h7
      | outputStateReg == 4'h8 | outputStateReg == 4'ha | outputStateReg == 4'h9 | outputStateReg == 4'hb; // @[KvRingBuffer.scala 347:294]
   assign io_deq_bits = _io_deq_valid_T_3 | _io_deq_valid_T_5 | _io_deq_valid_T_11 | _io_deq_valid_T_13 ? shadowReg :
@@ -445,6 +439,9 @@ module KVRingBuffer(
   assign io_lastOutput = _io_deq_valid_T_9 | _io_deq_valid_T_13; // @[KvRingBuffer.scala 350:61]
   assign io_metadataValid = outputStateReg == 4'h2 | outputStateReg == 4'h3; // @[KvRingBuffer.scala 354:61]
   always @(posedge clock) begin
+    if (mem_data_en) begin
+      mem_data_addr <= {{1'd0}, readFullPtr}; // @[KvRingBuffer.scala 168:24]
+    end
     if (mem_MPORT_en & mem_MPORT_mask) begin
       mem[mem_MPORT_addr] <= mem_MPORT_data; // @[KvRingBuffer.scala 84:26]
     end
@@ -456,10 +453,6 @@ module KVRingBuffer(
     end
     if (mem_MPORT_3_en & mem_MPORT_3_mask) begin
       mem[mem_MPORT_3_addr] <= mem_MPORT_3_data; // @[KvRingBuffer.scala 84:26]
-    end
-    mem_data_en_pipe_0 <= 1'h1;
-    if (1'h1) begin
-      mem_data_addr_pipe_0 <= {{1'd0}, readFullPtr};
     end
     if (reset) begin // @[KvRingBuffer.scala 75:29]
       readPtr <= 2'h0; // @[KvRingBuffer.scala 75:29]
@@ -631,7 +624,7 @@ initial begin
       `endif
     `endif
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
-  _RAND_1 = {1{`RANDOM}};
+  _RAND_2 = {1{`RANDOM}};
 `endif // RANDOMIZE_GARBAGE_ASSIGN
 `ifdef RANDOMIZE_MEM_INIT
   _RAND_0 = {1{`RANDOM}};
@@ -639,36 +632,34 @@ initial begin
     mem[initvar] = _RAND_0[31:0];
 `endif // RANDOMIZE_MEM_INIT
 `ifdef RANDOMIZE_REG_INIT
-  _RAND_2 = {1{`RANDOM}};
-  mem_data_en_pipe_0 = _RAND_2[0:0];
+  _RAND_1 = {1{`RANDOM}};
+  mem_data_addr = _RAND_1[10:0];
   _RAND_3 = {1{`RANDOM}};
-  mem_data_addr_pipe_0 = _RAND_3[10:0];
+  readPtr = _RAND_3[1:0];
   _RAND_4 = {1{`RANDOM}};
-  readPtr = _RAND_4[1:0];
+  outputStateReg = _RAND_4[3:0];
   _RAND_5 = {1{`RANDOM}};
-  outputStateReg = _RAND_5[3:0];
+  writePtr = _RAND_5[1:0];
   _RAND_6 = {1{`RANDOM}};
-  writePtr = _RAND_6[1:0];
+  inputStateReg = _RAND_6[1:0];
   _RAND_7 = {1{`RANDOM}};
-  inputStateReg = _RAND_7[1:0];
+  writeKeyChunkPtr = _RAND_7[9:0];
   _RAND_8 = {1{`RANDOM}};
-  writeKeyChunkPtr = _RAND_8[9:0];
+  writeValueChunkPtr = _RAND_8[9:0];
   _RAND_9 = {1{`RANDOM}};
-  writeValueChunkPtr = _RAND_9[9:0];
+  readKeyChunkPtr = _RAND_9[9:0];
   _RAND_10 = {1{`RANDOM}};
-  readKeyChunkPtr = _RAND_10[9:0];
+  readValueChunkPtr = _RAND_10[9:0];
   _RAND_11 = {1{`RANDOM}};
-  readValueChunkPtr = _RAND_11[9:0];
+  keyLen = _RAND_11[31:0];
   _RAND_12 = {1{`RANDOM}};
-  keyLen = _RAND_12[31:0];
+  valueLen = _RAND_12[31:0];
   _RAND_13 = {1{`RANDOM}};
-  valueLen = _RAND_13[31:0];
+  emptyReg = _RAND_13[0:0];
   _RAND_14 = {1{`RANDOM}};
-  emptyReg = _RAND_14[0:0];
+  fullReg = _RAND_14[0:0];
   _RAND_15 = {1{`RANDOM}};
-  fullReg = _RAND_15[0:0];
-  _RAND_16 = {1{`RANDOM}};
-  shadowReg = _RAND_16[31:0];
+  shadowReg = _RAND_15[31:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
