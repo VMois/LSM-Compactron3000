@@ -40,5 +40,5 @@ class DummyKvPairFifo(busWidth: Int = 32) extends Module {
 
 object DummyKvPairFifoMain extends App {
   println("Generating the dummy KV pair FIFO Verilog...")
-  (new chisel3.stage.ChiselStage).emitVerilog(new DummyKvPairFifo, Array("--target-dir", "Vivado/src/hdl"))
+  (new chisel3.stage.ChiselStage).emitVerilog(new DummyKvPairFifo, Array("--target-dir", "Vivado/src/hdl", "--target:fpga"))
 }
