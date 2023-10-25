@@ -3,6 +3,24 @@ package compaction_unit
 import chisel3._
 import chisel3.util._
 
+// TODO: use this bundle in KvRingBuffer class
+class KvRingBufferInputIO(busWidth: Int) extends Bundle {
+    val enq = Flipped(Decoupled(UInt(busWidth.W)))
+    val lastInput = Input(Bool())
+    val isInputKey = Input(Bool())
+}
+
+// TODO: use this bundle in KvRingBuffer class
+class KvRingBufferOutputIO(busWidth: Int) extends Bundle {
+    val deq = Decoupled(UInt(busWidth.W))
+    val outputKeyOnly = Input(Bool()) 
+    val lastOutput = Output(Bool())
+    val isOutputKey = Output(Bool())
+
+    // hack to output key and value len
+    val metadataValid = Output(Bool())
+}
+
 
 class KVRingBufferIO(busWidth: Int) extends Bundle {
     // Input for KV pairs
