@@ -11,7 +11,7 @@ case class TestInput(value: Int, lastInput: Boolean)
 
 class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
     "One buffer wins and advances" in {
-        test(new Merger(busWidth = 4, numberOfBuffers = 4)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+        test(new Merger(busWidth = 4, numberOfBuffers = 4)).withAnnotations(Seq(VerilatorBackendAnnotation)) { dut =>
             // reset Merger for a new comparison round
             dut.io.reset.poke(true.B)
             dut.io.mask.poke("b1111".U)
