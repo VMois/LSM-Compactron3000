@@ -1,35 +1,18 @@
 LSM-Compactron3000
 =======================
 
-The FPGA-based accelerator for the compaction process in LSM-tree Key Value databases.
+> This project is BSc thesis project. It is still work in progress.
+You can expect more updates in December 2023. Feel free to contribute but please do not expect any quick responses.
 
-The hardware design is described in [Chisel3](https://github.com/chipsalliance/chisel).
+The FPGA-based accelerator for the compaction process in LSM-tree Key Value databases. The hardware design is described in [Chisel3](https://github.com/chipsalliance/chisel).
 
 <p align="center">
   <img src="meme.jpg" />
 </p>
 
-## Design
-
-In this part, you will find a detailed description of the design of the *LSM-Compactron3000*.
-
-### KV Ring Buffer
-
-Is a circular buffer that caches decoded **Key/Value** (KV) pairs from the decoder. It has **32 x 8KB** size (key - 2KB, value - 6KB) defined in the paper. The decoder and KV ring buffer are connected by a 8-byte width bus. 
-
-The ring buffer implements a modified ready/valid handshake protocol, with `lastInput` and `lastOuput` signals. The `lastInput` signal is asserted by the sender to indicate to the ring buffer that the current valid value is the last chunk. The similar approach is taken by the ring buffer to output a KV pair.
-
-Remember that 'last' (or any similar end-of-transfer signal) needs to be synchronized with the data and the 'valid' signal. If 'last' is asserted, it refers to the data that is currently on the bus and being marked as 'valid'. Also, like 'valid' and 'ready', 'last' would need to remain high until the data is accepted. This is because the receiver might not be ready to accept the data in the same cycle that 'valid' and 'last' are asserted, so these signals need to remain asserted until the receiver indicates that it's ready.
-
-The read pointer is moved forward by asserting `moveReadPtr` input signal. The write pointer is moved forward when a new KV pair is written to the buffer unless buffer is full.
-
-The KV ring buffer outputs key value only if `outputKeyOnly` input signal is asserted. If not, it will transfer both key and value on a bus.
-
-The ring buffer also has three output signals `empty`, `full`. They are used by a control unit to control the decoder.
-
 ## Useful notes
 
-Those are some notes that I are important but I am not sure where to put them.
+Those are some notes that are useful to myself.
 
 ### How does memory work in FPGAs?
 
@@ -80,10 +63,9 @@ The proposed memory sizes are described in the table below.
 - [FPGA shells with wrappers for different interfaces written in Chisel](https://github.com/sifive/fpga-shells)
 - [Collection of different useful small Chisel3 projects](https://github.com/j-marjanovic/chisel-stuff)
 - [Project that shows how Chisel and Rust can have a custom peripherals](https://github.com/ekiwi/pynq)
-
-- https://github.com/alexforencich/verilog-axi - verilog axi interfaces
-
-- https://github.com/ZipCPU/wb2axip - AXI4, Wishbobe and other interfaces
+- [Verilog Axi](https://github.com/alexforencich/verilog-axi)
+- [Collection of AXI4, Wishbone and other interfaces in Verilog ](https://github.com/ZipCPU/wb2axip)
+- [Version control for Vivado](https://www.fpgadeveloper.com/2014/08/version-control-for-vivado-projects.html/)
 
 ### Zynq DMA tutorials
 
@@ -91,10 +73,6 @@ The proposed memory sizes are described in the table below.
 - https://www.youtube.com/watch?v=5gA3xnsSrdo
 - https://www.youtube.com/watch?v=Ld01yPmW_Xw
 - https://www.youtube.com/watch?v=5MCkjKhn1DM
-
-### Others
-
-- [Version control for Vivado](https://www.fpgadeveloper.com/2014/08/version-control-for-vivado-projects.html/)
 
 ## Development
 
