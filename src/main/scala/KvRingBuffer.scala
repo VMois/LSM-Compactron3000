@@ -29,15 +29,27 @@ class KVRingBufferIO(busWidth: Int) extends Bundle {
 }
 
 
-/** A class for KV ring buffer. 
- * The buffer to store key and value pairs. Eack KV pair has two metadata values, key and value sizes.
- * A synchronous on-chip memory delivers the result of a read in the next clock cycle.
+/** A class for KV Ring Buffer. 
+ * It is a circular buffer that temporary stores key and value (KV) pairs from the Decoder. 
+ * The buffer uses a synchronous on-chip memory that expects result of a read in the next clock cycle.
+ * Each KV pair has metadata values. Current implementation stores only key and value sizes.
+ *
+ * The buffer implements a modified ready/valid handshake protocol, with `lastInput` and `lastOuput` signals. 
+ * The `lastInput` signal is asserted by the sender to indicate to the ring buffer that the current valid value is the last chunk.
+ * The similar approach is taken by the ring buffer to output a KV pair.
+ * 
+ * The write pointer is moved forward when a new KV pair is written to the buffer unless buffer is full.
+ * The read pointer is moved forward by asserting `moveReadPtr` input signal.
+ *
+ * The buffer outputs key value only if `outputKeyOnly` input signal is asserted. 
+ * If not, it will transfer both key and value on a bus.
  *
  *  @param depth, how many KV pairs the buffer can hold.
  *  @param busWidth, the number of bits that can be read from memory at once.
  *  @param keySize, the maximum size of the key in bits.
  *  @param valueSize, the maximum size of the value in bits.
  *  @param metadataSize, the maximum size of the metadata in bits.
+ *  @param autoReadNextPair, if set to true, the read pointer is moved forward automatically when the last chunk of a KV pair is read.
  */
 class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: Int = 16, metadataSize: Int = 8, autoReadNextPair: Boolean = false) extends Module {
     assert (depth > 1, "The KV buffer depth must be greater than 1")
