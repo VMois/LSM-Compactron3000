@@ -2,6 +2,12 @@
 generated/
 test_run_dir/*
 
+### Xilinx Vivado files, custom for LSM-Compactron3000
+*.gen/
+*.hw/
+*.cache/
+*.ip_user_files/
+
 ### XilinxISE template
 # intermediate build files
 *.bgn

@@ -3,6 +3,24 @@ package compaction_unit
 import chisel3._
 import chisel3.util._
 
+// TODO: use this bundle in KvRingBuffer class
+class KvRingBufferInputIO(busWidth: Int) extends Bundle {
+    val enq = Flipped(Decoupled(UInt(busWidth.W)))
+    val lastInput = Input(Bool())
+    val isInputKey = Input(Bool())
+}
+
+// TODO: use this bundle in KvRingBuffer class
+class KvRingBufferOutputIO(busWidth: Int) extends Bundle {
+    val deq = Decoupled(UInt(busWidth.W))
+    val outputKeyOnly = Input(Bool()) 
+    val lastOutput = Output(Bool())
+    val isOutputKey = Output(Bool())
+
+    // hack to output key and value len
+    val metadataValid = Output(Bool())
+}
+
 
 class KVRingBufferIO(busWidth: Int) extends Bundle {
     // Input for KV pairs
@@ -115,30 +133,42 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     val inputStateReg = RegInit(writeData)
     val outputStateReg = RegInit(requestKeyLen)
 
+    val writeReg = RegInit(0.U(busWidth.W))
+    val offset = (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U
+    val writeDataPtr = Mux(inputStateReg === writeData, Mux(io.isInputKey, metadataAddressOffset.U, (metadataAddressOffset + keyAddressOffset).U) + Mux(io.isInputKey, writeKeyChunkPtr, writeValueChunkPtr), 0.U)
+    val metadataOffsetPtr = Mux(inputStateReg === inputSaveValueLen, 1.U, 0.U)
+
+    mem.write(writePtr * offset + writeDataPtr + metadataOffsetPtr, Mux(inputStateReg === writeData, io.enq.bits, writeReg))
+
+    //mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U, writeKeyChunkPtr)
+    //mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + 1.U, writeValueChunkPtr)
+
+
     switch(inputStateReg) {
         is(writeData) {
             when(io.enq.valid && !fullReg) {
+                //mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + (metadataAddressOffset + keyAddressOffset).U + writeValueChunkPtr, io.enq.bits)
+
                 when (io.isInputKey) {
-                    mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + metadataAddressOffset.U + writeKeyChunkPtr, io.enq.bits)
                     writeKeyChunkPtr := writeKeyChunkPtr + 1.U
                 } otherwise {
-                    mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + (metadataAddressOffset + keyAddressOffset).U + writeValueChunkPtr, io.enq.bits)
                     writeValueChunkPtr := writeValueChunkPtr + 1.U
-
                     when(io.lastInput) {
                         inputStateReg := inputSaveKeyLen
+                        writeReg := writeKeyChunkPtr
                     }
                 }
             }
         }
 
         is(inputSaveKeyLen) {
-            mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U, writeKeyChunkPtr)
+            //mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U, writeKeyChunkPtr)
             inputStateReg := inputSaveValueLen
+            writeReg := writeValueChunkPtr
         }
 
         is(inputSaveValueLen) {
-            mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + 1.U, writeValueChunkPtr)
+            //mem.write(writePtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + 1.U, writeValueChunkPtr)
             emptyReg := false.B
             incrWrite := true.B
             fullReg := nextWrite === readPtr
@@ -158,7 +188,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
     }
 
-    val readFullPtr = readPtr * (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U + readValueChunkPtr + readKeyChunkPtr
+    val readFullPtr = readPtr * offset + readValueChunkPtr + readKeyChunkPtr
     val data = mem.read(readFullPtr)
     val shadowReg = RegInit(0.U(busWidth.W))
 

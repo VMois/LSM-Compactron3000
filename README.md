@@ -74,6 +74,21 @@ The proposed memory sizes are described in the table below.
 - https://www.youtube.com/watch?v=Ld01yPmW_Xw
 - https://www.youtube.com/watch?v=5MCkjKhn1DM
 
+- https://github.com/alexforencich/verilog-axi - verilog axi interfaces
+
+- https://github.com/ZipCPU/wb2axip - AXI4, Wishbobe and other interfaces
+
+### Zynq DMA tutorials
+
+- https://www.youtube.com/watch?v=tQpt2N7__NQ
+- https://www.youtube.com/watch?v=5gA3xnsSrdo
+- https://www.youtube.com/watch?v=Ld01yPmW_Xw
+- https://www.youtube.com/watch?v=5MCkjKhn1DM
+
+### Others
+
+- [Version control for Vivado](https://www.fpgadeveloper.com/2014/08/version-control-for-vivado-projects.html/)
+
 ## Development
 
 ### Create Docker Image
