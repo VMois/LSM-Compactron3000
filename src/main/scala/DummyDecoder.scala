@@ -45,7 +45,7 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
         }
 
         is (readKey) {
-            when (io.input.axi_s.tvalid && io.input.axi_s.tready) {
+            when (io.input.axi_s.tvalid && io.output.enq.ready) {
                 counter := counter + 1.U
 
                 when (counter === keyLen) {
@@ -56,7 +56,7 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
         }
 
         is (readValue) {
-            when (io.input.axi_s.tvalid && io.input.axi_s.tready) {
+            when (io.input.axi_s.tvalid && io.output.enq.ready) {
                 counter := counter + 1.U
 
                 when (counter === valueLen) {
@@ -69,7 +69,7 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
     }
 
     // TODO: readyToAccept maybe needs to be saved in register
-    io.input.axi_s.tready := io.readyToAccept
+    io.input.axi_s.tready := io.readyToAccept && io.output.enq.ready
     io.lastKvPairSeen := isLastKvPair
 
     io.output.enq.valid := (state === readKey || state === readValue) && io.input.axi_s.tvalid

@@ -15,6 +15,7 @@ class DummyDecoderSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.readyToAccept.poke(true.B)
             dut.io.input.axi_s.tvalid.poke(true.B)
 
+            dut.io.output.enq.ready.poke(true.B)
             dut.io.input.axi_s.tready.expect(true.B)
             
             // Send status data
