@@ -97,7 +97,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
 
     val keyAddressOffset = keySize / busWidth
     val metadataAddressOffset = metadataSize / busWidth
-    val valueAddressOffset = metadataSize / busWidth
+    val valueAddressOffset = valueSize / busWidth
 
     // pointers for KV pairs
     val incrRead = WireInit(false.B)
@@ -134,11 +134,12 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     val outputStateReg = RegInit(requestKeyLen)
 
     val writeReg = RegInit(0.U(busWidth.W))
+
     val offset = (metadataAddressOffset + keyAddressOffset + valueAddressOffset).U
     val writeDataPtr = Mux(inputStateReg === writeData, Mux(io.isInputKey, metadataAddressOffset.U, (metadataAddressOffset + keyAddressOffset).U) + Mux(io.isInputKey, writeKeyChunkPtr, writeValueChunkPtr), 0.U)
     val metadataOffsetPtr = Mux(inputStateReg === inputSaveValueLen, 1.U, 0.U)
-
-    mem.write(writePtr * offset + writeDataPtr + metadataOffsetPtr, Mux(inputStateReg === writeData, io.enq.bits, writeReg))
+    val writeFullPtr = writePtr * offset + writeDataPtr + metadataOffsetPtr
+    mem.write(writeFullPtr, Mux(inputStateReg === writeData, io.enq.bits, writeReg))
 
     switch(inputStateReg) {
         is(writeData) {
@@ -196,6 +197,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         is(requestValueLen) {
             when (!moveOrResetRequested) {
                 outputStateReg := outputReadKeyLen
+                // request value length, just reusing a register
                 readKeyChunkPtr := 1.U
             }
         }
