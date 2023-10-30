@@ -7,7 +7,8 @@
       "name": "dmaSuperSystem",
       "rev_ctrl_bd_flag": "RevCtrlBdOff",
       "synth_flow_mode": "Hierarchical",
-      "tool_version": "2022.1"
+      "tool_version": "2022.1",
+      "validated": "true"
     },
     "design_tree": {
       "axi_dma_0": "",
@@ -29,27 +30,85 @@
           "auto_pc": ""
         }
       },
+      "util_vector_logic_0": "",
+      "processing_system7_0": "",
       "system_ila_0": "",
-      "DummyKvPairFifo_0": "",
-      "processing_system7_0": ""
+      "system_ila_2": "",
+      "DummyKvPairFifo_0": ""
     },
     "interface_ports": {
       "DDR": {
         "mode": "Master",
         "vlnv_bus_definition": "xilinx.com:interface:ddrx:1.0",
-        "vlnv": "xilinx.com:interface:ddrx_rtl:1.0"
+        "vlnv": "xilinx.com:interface:ddrx_rtl:1.0",
+        "parameters": {
+          "AXI_ARBITRATION_SCHEME": {
+            "value": "TDM",
+            "value_src": "default"
+          },
+          "BURST_LENGTH": {
+            "value": "8",
+            "value_src": "default"
+          },
+          "CAN_DEBUG": {
+            "value": "false",
+            "value_src": "default"
+          },
+          "CAS_LATENCY": {
+            "value": "11",
+            "value_src": "default"
+          },
+          "CAS_WRITE_LATENCY": {
+            "value": "11",
+            "value_src": "default"
+          },
+          "CS_ENABLED": {
+            "value": "true",
+            "value_src": "default"
+          },
+          "DATA_MASK_ENABLED": {
+            "value": "true",
+            "value_src": "default"
+          },
+          "DATA_WIDTH": {
+            "value": "8",
+            "value_src": "default"
+          },
+          "MEMORY_TYPE": {
+            "value": "COMPONENTS",
+            "value_src": "default"
+          },
+          "MEM_ADDR_MAP": {
+            "value": "ROW_COLUMN_BANK",
+            "value_src": "default"
+          },
+          "SLOT": {
+            "value": "Single",
+            "value_src": "default"
+          },
+          "TIMEPERIOD_PS": {
+            "value": "1250",
+            "value_src": "default"
+          }
+        }
       },
       "FIXED_IO": {
         "mode": "Master",
         "vlnv_bus_definition": "xilinx.com:display_processing_system7:fixedio:1.0",
-        "vlnv": "xilinx.com:display_processing_system7:fixedio_rtl:1.0"
+        "vlnv": "xilinx.com:display_processing_system7:fixedio_rtl:1.0",
+        "parameters": {
+          "CAN_DEBUG": {
+            "value": "false",
+            "value_src": "default"
+          }
+        }
       }
     },
     "components": {
       "axi_dma_0": {
         "vlnv": "xilinx.com:ip:axi_dma:7.1",
         "xci_name": "dmaSuperSystem_axi_dma_0_0",
-        "xci_path": "ip/dmaSuperSystem_axi_dma_0_0/dmaSuperSystem_axi_dma_0_0.xci",
+        "xci_path": "ip\\dmaSuperSystem_axi_dma_0_0\\dmaSuperSystem_axi_dma_0_0.xci",
         "inst_hier_path": "axi_dma_0",
         "parameters": {
           "c_include_sg": {
@@ -93,7 +152,7 @@
       },
       "ps7_0_axi_periph": {
         "vlnv": "xilinx.com:ip:axi_interconnect:2.1",
-        "xci_path": "ip/dmaSuperSystem_ps7_0_axi_periph_1/dmaSuperSystem_ps7_0_axi_periph_1.xci",
+        "xci_path": "ip\\dmaSuperSystem_ps7_0_axi_periph_1\\dmaSuperSystem_ps7_0_axi_periph_1.xci",
         "inst_hier_path": "ps7_0_axi_periph",
         "xci_name": "dmaSuperSystem_ps7_0_axi_periph_1",
         "parameters": {
@@ -212,7 +271,7 @@
               "auto_pc": {
                 "vlnv": "xilinx.com:ip:axi_protocol_converter:2.1",
                 "xci_name": "dmaSuperSystem_auto_pc_0",
-                "xci_path": "ip/dmaSuperSystem_auto_pc_0/dmaSuperSystem_auto_pc_0.xci",
+                "xci_path": "ip\\dmaSuperSystem_auto_pc_0\\dmaSuperSystem_auto_pc_0.xci",
                 "inst_hier_path": "ps7_0_axi_periph/s00_couplers/auto_pc",
                 "parameters": {
                   "MI_PROTOCOL": {
@@ -307,12 +366,12 @@
       "rst_ps7_0_100M": {
         "vlnv": "xilinx.com:ip:proc_sys_reset:5.0",
         "xci_name": "dmaSuperSystem_rst_ps7_0_100M_0",
-        "xci_path": "ip/dmaSuperSystem_rst_ps7_0_100M_0/dmaSuperSystem_rst_ps7_0_100M_0.xci",
+        "xci_path": "ip\\dmaSuperSystem_rst_ps7_0_100M_0\\dmaSuperSystem_rst_ps7_0_100M_0.xci",
         "inst_hier_path": "rst_ps7_0_100M"
       },
       "axi_mem_intercon": {
         "vlnv": "xilinx.com:ip:axi_interconnect:2.1",
-        "xci_path": "ip/dmaSuperSystem_axi_mem_intercon_0/dmaSuperSystem_axi_mem_intercon_0.xci",
+        "xci_path": "ip\\dmaSuperSystem_axi_mem_intercon_0\\dmaSuperSystem_axi_mem_intercon_0.xci",
         "inst_hier_path": "axi_mem_intercon",
         "xci_name": "dmaSuperSystem_axi_mem_intercon_0",
         "parameters": {
@@ -407,7 +466,7 @@
           "xbar": {
             "vlnv": "xilinx.com:ip:axi_crossbar:2.1",
             "xci_name": "dmaSuperSystem_xbar_0",
-            "xci_path": "ip/dmaSuperSystem_xbar_0/dmaSuperSystem_xbar_0.xci",
+            "xci_path": "ip\\dmaSuperSystem_xbar_0\\dmaSuperSystem_xbar_0.xci",
             "inst_hier_path": "axi_mem_intercon/xbar",
             "parameters": {
               "NUM_MI": {
@@ -488,7 +547,7 @@
               "auto_us": {
                 "vlnv": "xilinx.com:ip:axi_dwidth_converter:2.1",
                 "xci_name": "dmaSuperSystem_auto_us_0",
-                "xci_path": "ip/dmaSuperSystem_auto_us_0/dmaSuperSystem_auto_us_0.xci",
+                "xci_path": "ip\\dmaSuperSystem_auto_us_0\\dmaSuperSystem_auto_us_0.xci",
                 "inst_hier_path": "axi_mem_intercon/s00_couplers/auto_us",
                 "parameters": {
                   "MI_DATA_WIDTH": {
@@ -589,7 +648,7 @@
               "auto_us": {
                 "vlnv": "xilinx.com:ip:axi_dwidth_converter:2.1",
                 "xci_name": "dmaSuperSystem_auto_us_1",
-                "xci_path": "ip/dmaSuperSystem_auto_us_1/dmaSuperSystem_auto_us_1.xci",
+                "xci_path": "ip\\dmaSuperSystem_auto_us_1\\dmaSuperSystem_auto_us_1.xci",
                 "inst_hier_path": "axi_mem_intercon/s01_couplers/auto_us",
                 "parameters": {
                   "MI_DATA_WIDTH": {
@@ -690,7 +749,7 @@
               "auto_pc": {
                 "vlnv": "xilinx.com:ip:axi_protocol_converter:2.1",
                 "xci_name": "dmaSuperSystem_auto_pc_1",
-                "xci_path": "ip/dmaSuperSystem_auto_pc_1/dmaSuperSystem_auto_pc_1.xci",
+                "xci_path": "ip\\dmaSuperSystem_auto_pc_1\\dmaSuperSystem_auto_pc_1.xci",
                 "inst_hier_path": "axi_mem_intercon/m00_couplers/auto_pc",
                 "parameters": {
                   "MI_PROTOCOL": {
@@ -806,66 +865,24 @@
           }
         }
       },
-      "system_ila_0": {
-        "vlnv": "xilinx.com:ip:system_ila:1.1",
-        "xci_name": "dmaSuperSystem_system_ila_0_0",
-        "xci_path": "ip/dmaSuperSystem_system_ila_0_0/dmaSuperSystem_system_ila_0_0.xci",
-        "inst_hier_path": "system_ila_0",
+      "util_vector_logic_0": {
+        "vlnv": "xilinx.com:ip:util_vector_logic:2.0",
+        "xci_name": "dmaSuperSystem_util_vector_logic_0_0",
+        "xci_path": "ip\\dmaSuperSystem_util_vector_logic_0_0\\dmaSuperSystem_util_vector_logic_0_0.xci",
+        "inst_hier_path": "util_vector_logic_0",
         "parameters": {
-          "C_MON_TYPE": {
-            "value": "INTERFACE"
+          "C_OPERATION": {
+            "value": "not"
           },
-          "C_NUM_MONITOR_SLOTS": {
-            "value": "2"
-          },
-          "C_SLOT_0_APC_EN": {
-            "value": "0"
-          },
-          "C_SLOT_0_AXI_DATA_SEL": {
+          "C_SIZE": {
             "value": "1"
-          },
-          "C_SLOT_0_AXI_TRIG_SEL": {
-            "value": "1"
-          },
-          "C_SLOT_0_INTF_TYPE": {
-            "value": "xilinx.com:interface:axis_rtl:1.0"
-          },
-          "C_SLOT_1_APC_EN": {
-            "value": "0"
-          },
-          "C_SLOT_1_AXI_DATA_SEL": {
-            "value": "1"
-          },
-          "C_SLOT_1_AXI_TRIG_SEL": {
-            "value": "1"
-          },
-          "C_SLOT_1_INTF_TYPE": {
-            "value": "xilinx.com:interface:axis_rtl:1.0"
-          }
-        },
-        "interface_ports": {
-          "SLOT_0_AXIS": {
-            "mode": "Monitor",
-            "vlnv_bus_definition": "xilinx.com:interface:axis:1.0",
-            "vlnv": "xilinx.com:interface:axis_rtl:1.0"
-          },
-          "SLOT_1_AXIS": {
-            "mode": "Monitor",
-            "vlnv_bus_definition": "xilinx.com:interface:axis:1.0",
-            "vlnv": "xilinx.com:interface:axis_rtl:1.0"
           }
         }
-      },
-      "DummyKvPairFifo_0": {
-        "vlnv": "bme.hu:user:DummyKvPairFifo:1.1",
-        "xci_name": "dmaSuperSystem_DummyKvPairFifo_0_2",
-        "xci_path": "ip/dmaSuperSystem_DummyKvPairFifo_0_2/dmaSuperSystem_DummyKvPairFifo_0_2.xci",
-        "inst_hier_path": "DummyKvPairFifo_0"
       },
       "processing_system7_0": {
         "vlnv": "xilinx.com:ip:processing_system7:5.5",
         "xci_name": "dmaSuperSystem_processing_system7_0_0",
-        "xci_path": "ip/dmaSuperSystem_processing_system7_0_0/dmaSuperSystem_processing_system7_0_0.xci",
+        "xci_path": "ip\\dmaSuperSystem_processing_system7_0_0\\dmaSuperSystem_processing_system7_0_0.xci",
         "inst_hier_path": "processing_system7_0",
         "parameters": {
           "PCW_ACT_APU_PERIPHERAL_FREQMHZ": {
@@ -2075,6 +2092,79 @@
             }
           }
         }
+      },
+      "system_ila_0": {
+        "vlnv": "xilinx.com:ip:system_ila:1.1",
+        "xci_name": "dmaSuperSystem_system_ila_0_0",
+        "xci_path": "ip\\dmaSuperSystem_system_ila_0_0\\dmaSuperSystem_system_ila_0_0.xci",
+        "inst_hier_path": "system_ila_0",
+        "parameters": {
+          "C_MON_TYPE": {
+            "value": "INTERFACE"
+          },
+          "C_NUM_MONITOR_SLOTS": {
+            "value": "2"
+          },
+          "C_SLOT_0_APC_EN": {
+            "value": "0"
+          },
+          "C_SLOT_0_AXI_DATA_SEL": {
+            "value": "1"
+          },
+          "C_SLOT_0_AXI_TRIG_SEL": {
+            "value": "1"
+          },
+          "C_SLOT_0_INTF_TYPE": {
+            "value": "xilinx.com:interface:axis_rtl:1.0"
+          },
+          "C_SLOT_1_APC_EN": {
+            "value": "0"
+          },
+          "C_SLOT_1_AXI_DATA_SEL": {
+            "value": "1"
+          },
+          "C_SLOT_1_AXI_TRIG_SEL": {
+            "value": "1"
+          },
+          "C_SLOT_1_INTF_TYPE": {
+            "value": "xilinx.com:interface:axis_rtl:1.0"
+          }
+        },
+        "interface_ports": {
+          "SLOT_0_AXIS": {
+            "mode": "Monitor",
+            "vlnv_bus_definition": "xilinx.com:interface:axis:1.0",
+            "vlnv": "xilinx.com:interface:axis_rtl:1.0"
+          },
+          "SLOT_1_AXIS": {
+            "mode": "Monitor",
+            "vlnv_bus_definition": "xilinx.com:interface:axis:1.0",
+            "vlnv": "xilinx.com:interface:axis_rtl:1.0"
+          }
+        }
+      },
+      "system_ila_2": {
+        "vlnv": "xilinx.com:ip:system_ila:1.1",
+        "xci_name": "dmaSuperSystem_system_ila_2_0",
+        "xci_path": "ip\\dmaSuperSystem_system_ila_2_0\\dmaSuperSystem_system_ila_2_0.xci",
+        "inst_hier_path": "system_ila_2",
+        "parameters": {
+          "C_MON_TYPE": {
+            "value": "NATIVE"
+          },
+          "C_NUM_OF_PROBES": {
+            "value": "1"
+          },
+          "C_PROBE0_TYPE": {
+            "value": "0"
+          }
+        }
+      },
+      "DummyKvPairFifo_0": {
+        "vlnv": "bme.hu:user:DummyKvPairFifo:1.1",
+        "xci_name": "dmaSuperSystem_DummyKvPairFifo_0_2",
+        "xci_path": "ip\\dmaSuperSystem_DummyKvPairFifo_0_2\\dmaSuperSystem_DummyKvPairFifo_0_2.xci",
+        "inst_hier_path": "DummyKvPairFifo_0"
       }
     },
     "interface_nets": {
@@ -2166,10 +2256,11 @@
           "axi_mem_intercon/M00_ACLK",
           "axi_mem_intercon/ACLK",
           "axi_mem_intercon/S01_ACLK",
-          "system_ila_0/clk",
-          "DummyKvPairFifo_0/clock",
           "processing_system7_0/M_AXI_GP0_ACLK",
-          "processing_system7_0/S_AXI_HP0_ACLK"
+          "processing_system7_0/S_AXI_HP0_ACLK",
+          "system_ila_0/clk",
+          "system_ila_2/clk",
+          "DummyKvPairFifo_0/clock"
         ]
       },
       "processing_system7_0_FCLK_RESET0_N": {
@@ -2189,9 +2280,24 @@
           "axi_mem_intercon/M00_ARESETN",
           "axi_mem_intercon/ARESETN",
           "axi_mem_intercon/S01_ARESETN",
-          "system_ila_0/resetn",
-          "DummyKvPairFifo_0/reset"
+          "util_vector_logic_0/Op1",
+          "system_ila_0/resetn"
         ]
+      },
+      "util_vector_logic_0_Res": {
+        "ports": [
+          "util_vector_logic_0/Res",
+          "system_ila_2/probe0",
+          "DummyKvPairFifo_0/reset"
+        ],
+        "hdl_attributes": {
+          "DEBUG": {
+            "value": "true"
+          },
+          "MARK_DEBUG": {
+            "value": "true"
+          }
+        }
       }
     },
     "addressing": {
