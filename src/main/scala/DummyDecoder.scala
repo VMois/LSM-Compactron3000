@@ -38,14 +38,14 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
 
     switch (state) {
         is (idle) {
-            when (io.input.axi_s.tvalid) {
+            when (io.input.axi_s.tvalid && io.input.axi_s.tready) {
                 state := readKey
                 status := io.input.axi_s.tdata
             }
         }
 
         is (readKey) {
-            when (io.input.axi_s.tvalid && io.output.enq.ready) {
+            when (io.input.axi_s.tvalid && io.input.axi_s.tready) {
                 counter := counter + 1.U
 
                 when (counter === keyLen) {
@@ -56,7 +56,7 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
         }
 
         is (readValue) {
-            when (io.input.axi_s.tvalid && io.output.enq.ready) {
+            when (io.input.axi_s.tvalid && io.input.axi_s.tready) {
                 counter := counter + 1.U
 
                 when (counter === valueLen) {

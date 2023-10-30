@@ -30,17 +30,14 @@ class DummyKvPairFifoSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.axi_s.tdata.poke((i + 2000).U)
                 dut.clock.step()
             }
-            dut.io.axi_s.tvalid.poke(false.B)
-            dut.io.axi_s.tlast.poke(false.B)
 
-            // Wait for axis s to be ready for second KV pair
+            dut.io.axi_s.tdata.poke(statusNotLast2Keys4Values.U)
+
+            // Wait for AXI S to be ready for second KV pair
             while (dut.io.axi_s.tready.peek().litToBoolean == false) {
                 dut.clock.step()
             }
 
-            dut.io.axi_s.tdata.poke(statusNotLast2Keys4Values.U)
-            dut.io.axi_s.tready.expect(true.B)
-            dut.io.axi_s.tvalid.poke(true.B)
             dut.clock.step()
             
             // Send key
@@ -92,7 +89,6 @@ class DummyKvPairFifoSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.axi_m.tlast.expect(false.B)
 
             // Wait for AXI M to be ready
-            //dut.io.axi_m.tready.poke(true.B)
             while (dut.io.axi_m.tvalid.peek().litToBoolean == false) {
                 dut.clock.step()
             }

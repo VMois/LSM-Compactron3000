@@ -121,30 +121,30 @@ module DummyDecoder(
   reg [7:0] counter; // @[DummyDecoder.scala 32:26]
   wire [7:0] keyLen = status[15:8] - 8'h1; // @[DummyDecoder.scala 35:32]
   wire [7:0] valueLen = status[23:16] - 8'h1; // @[DummyDecoder.scala 36:35]
-  wire  _T_2 = io_input_axi_s_tvalid & io_output_enq_ready; // @[DummyDecoder.scala 48:41]
+  wire  _T_1 = io_input_axi_s_tvalid & io_input_axi_s_tready; // @[DummyDecoder.scala 41:41]
   wire [7:0] _counter_T_1 = counter + 8'h1; // @[DummyDecoder.scala 49:36]
   wire [1:0] _GEN_2 = counter == keyLen ? 2'h2 : state; // @[DummyDecoder.scala 27:24 51:43 52:27]
   wire [7:0] _GEN_3 = counter == keyLen ? 8'h0 : _counter_T_1; // @[DummyDecoder.scala 49:25 51:43 53:29]
-  wire  _T_6 = counter == valueLen; // @[DummyDecoder.scala 62:31]
+  wire  _T_7 = counter == valueLen; // @[DummyDecoder.scala 62:31]
   wire [1:0] _GEN_6 = counter == valueLen ? 2'h0 : state; // @[DummyDecoder.scala 27:24 62:45 63:27]
   wire [7:0] _GEN_7 = counter == valueLen ? 8'h0 : _counter_T_1; // @[DummyDecoder.scala 60:25 62:45 64:29]
-  wire [7:0] _GEN_9 = _T_2 ? _GEN_7 : counter; // @[DummyDecoder.scala 32:26 59:65]
-  wire [1:0] _GEN_10 = _T_2 ? _GEN_6 : state; // @[DummyDecoder.scala 27:24 59:65]
+  wire [7:0] _GEN_9 = _T_1 ? _GEN_7 : counter; // @[DummyDecoder.scala 32:26 59:67]
+  wire [1:0] _GEN_10 = _T_1 ? _GEN_6 : state; // @[DummyDecoder.scala 27:24 59:67]
   wire  _io_output_enq_valid_T_1 = state == 2'h2; // @[DummyDecoder.scala 75:56]
   assign io_input_axi_s_tready = io_output_enq_ready; // @[DummyDecoder.scala 72:47]
   assign io_output_enq_valid = (state == 2'h1 | state == 2'h2) & io_input_axi_s_tvalid; // @[DummyDecoder.scala 75:71]
   assign io_output_enq_bits = io_input_axi_s_tdata; // @[DummyDecoder.scala 76:24]
-  assign io_output_lastInput = _io_output_enq_valid_T_1 & _T_6; // @[DummyDecoder.scala 78:48]
+  assign io_output_lastInput = _io_output_enq_valid_T_1 & _T_7; // @[DummyDecoder.scala 78:48]
   assign io_output_isInputKey = state == 2'h1; // @[DummyDecoder.scala 77:35]
   always @(posedge clock) begin
     if (reset) begin // @[DummyDecoder.scala 27:24]
       state <= 2'h0; // @[DummyDecoder.scala 27:24]
     end else if (2'h0 == state) begin // @[DummyDecoder.scala 39:20]
-      if (io_input_axi_s_tvalid) begin // @[DummyDecoder.scala 41:42]
+      if (io_input_axi_s_tvalid & io_input_axi_s_tready) begin // @[DummyDecoder.scala 41:67]
         state <= 2'h1; // @[DummyDecoder.scala 42:23]
       end
     end else if (2'h1 == state) begin // @[DummyDecoder.scala 39:20]
-      if (io_input_axi_s_tvalid & io_output_enq_ready) begin // @[DummyDecoder.scala 48:65]
+      if (_T_1) begin // @[DummyDecoder.scala 48:67]
         state <= _GEN_2;
       end
     end else if (2'h2 == state) begin // @[DummyDecoder.scala 39:20]
@@ -153,7 +153,7 @@ module DummyDecoder(
     if (reset) begin // @[DummyDecoder.scala 28:25]
       status <= 32'h0; // @[DummyDecoder.scala 28:25]
     end else if (2'h0 == state) begin // @[DummyDecoder.scala 39:20]
-      if (io_input_axi_s_tvalid) begin // @[DummyDecoder.scala 41:42]
+      if (io_input_axi_s_tvalid & io_input_axi_s_tready) begin // @[DummyDecoder.scala 41:67]
         status <= io_input_axi_s_tdata; // @[DummyDecoder.scala 43:24]
       end
     end
@@ -161,7 +161,7 @@ module DummyDecoder(
       counter <= 8'h0; // @[DummyDecoder.scala 32:26]
     end else if (!(2'h0 == state)) begin // @[DummyDecoder.scala 39:20]
       if (2'h1 == state) begin // @[DummyDecoder.scala 39:20]
-        if (io_input_axi_s_tvalid & io_output_enq_ready) begin // @[DummyDecoder.scala 48:65]
+        if (_T_1) begin // @[DummyDecoder.scala 48:67]
           counter <= _GEN_3;
         end
       end else if (2'h2 == state) begin // @[DummyDecoder.scala 39:20]
