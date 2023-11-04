@@ -23,30 +23,12 @@ class TestKvRingBufferIO(busWidth: Int) extends Bundle {
     val isInputKey = Input(Bool())
 }
 
-class TestKvTransferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
-    val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
-    val command = Input(UInt(2.W))
-    val stop = Input(Bool())
-    val busy = Output(Bool())
-    val mask = Input(UInt(numberOfBuffers.W))
-}
-
 class TestKeyBufferIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     val deq = Decoupled(UInt(busWidth.W))
 
     val bufferOutputSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val empty = Output(Bool())
     val lastOutput = Output(Bool())
-}
-
-class TestMergerIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
-    val reset = Input(Bool())
-    val mask = Input(UInt(numberOfBuffers.W))
-
-    val isResultValid = Output(Bool())
-    val haveWinner = Output(Bool())
-    val winnerIndex = Output(UInt(log2Ceil(numberOfBuffers).W))
-    val nextKvPairsToLoad = Output(Vec(numberOfBuffers, Bool()))
 }
 
 class TestKvOutputBufferIO(busWidth: Int) extends Bundle {
@@ -65,7 +47,7 @@ class TestKvOutputBufferIO(busWidth: Int) extends Bundle {
 class TopTestModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     val io = IO(new Bundle {
         val buffers = Vec(numberOfBuffers, new TestKvRingBufferIO(busWidth))
-        val kvTransfer = new TestKvTransferIO(busWidth, numberOfBuffers)
+        val kvTransfer = new KvTransferControlIO(numberOfBuffers)
         val keyBuffer = new TestKeyBufferIO(busWidth, numberOfBuffers)
     })
     val depthOfBuffer = 4
@@ -83,22 +65,17 @@ class TopTestModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     for (i <- 0 until numberOfBuffers) {
         io.buffers(i).enq <> kvRingBuffers(i).io.enq
         io.buffers(i).lastInput <> kvRingBuffers(i).io.lastInput
-        io.buffers(i).moveReadPtr <> kvRingBuffers(i).io.moveReadPtr
+        io.buffers(i).moveReadPtr <> kvRingBuffers(i).io.control.moveReadPtr
         io.buffers(i).outputKeyOnly <> kvRingBuffers(i).io.outputKeyOnly
         io.buffers(i).isInputKey <> kvRingBuffers(i).io.isInputKey
 
-        topKvTransfer.io.resetBufferRead <> kvRingBuffers(i).io.resetRead
+        topKvTransfer.io.resetBufferRead <> kvRingBuffers(i).io.control.resetRead
         topKvTransfer.io.outputKeyOnly <> kvRingBuffers(i).io.outputKeyOnly
         topKvTransfer.io.lastInputs(i) <> kvRingBuffers(i).io.lastOutput
         topKvTransfer.io.isInputKey(i) <> kvRingBuffers(i).io.isOutputKey
         topKvTransfer.io.enq(i) <> kvRingBuffers(i).io.deq
     }
-
-    topKvTransfer.io.bufferInputSelect <> io.kvTransfer.bufferInputSelect
-    topKvTransfer.io.stop <> io.kvTransfer.stop
-    topKvTransfer.io.command <> io.kvTransfer.command
-    topKvTransfer.io.busy <> io.kvTransfer.busy
-    topKvTransfer.io.mask <> io.kvTransfer.mask
+    topKvTransfer.io.control <> io.kvTransfer
     topKvTransfer.io.deqKvPair <> DontCare
 
     // connect TopKvTransfer to KeyBuffer
@@ -121,8 +98,8 @@ class TopTestModule(busWidth: Int, numberOfBuffers: Int) extends Module {
 class TopTestMergerModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     val io = IO(new Bundle {
         val buffers = Vec(numberOfBuffers, new TestKvRingBufferIO(busWidth))
-        val kvTransfer = new TestKvTransferIO(busWidth, numberOfBuffers)
-        val merger = new TestMergerIO(busWidth, numberOfBuffers)
+        val kvTransfer = new KvTransferControlIO(numberOfBuffers)
+        val merger = new MergerControlIO(numberOfBuffers)
         val kvOutput = new TestKvOutputBufferIO(busWidth)
     })
     val depthOfBuffer = 4
@@ -142,22 +119,17 @@ class TopTestMergerModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     for (i <- 0 until numberOfBuffers) {
         io.buffers(i).enq <> kvRingBuffers(i).io.enq
         io.buffers(i).lastInput <> kvRingBuffers(i).io.lastInput
-        io.buffers(i).moveReadPtr <> kvRingBuffers(i).io.moveReadPtr
+        io.buffers(i).moveReadPtr <> kvRingBuffers(i).io.control.moveReadPtr
         io.buffers(i).outputKeyOnly <> kvRingBuffers(i).io.outputKeyOnly
         io.buffers(i).isInputKey <> kvRingBuffers(i).io.isInputKey
 
-        topKvTransfer.io.resetBufferRead <> kvRingBuffers(i).io.resetRead
+        topKvTransfer.io.resetBufferRead <> kvRingBuffers(i).io.control.resetRead
         topKvTransfer.io.outputKeyOnly <> kvRingBuffers(i).io.outputKeyOnly
         topKvTransfer.io.lastInputs(i) <> kvRingBuffers(i).io.lastOutput
         topKvTransfer.io.isInputKey(i) <> kvRingBuffers(i).io.isOutputKey
         topKvTransfer.io.enq(i) <> kvRingBuffers(i).io.deq
     }
-
-    topKvTransfer.io.bufferInputSelect <> io.kvTransfer.bufferInputSelect
-    topKvTransfer.io.stop <> io.kvTransfer.stop
-    topKvTransfer.io.command <> io.kvTransfer.command
-    topKvTransfer.io.busy <> io.kvTransfer.busy
-    topKvTransfer.io.mask <> io.kvTransfer.mask
+    topKvTransfer.io.control <> io.kvTransfer
 
     // connect TopKvTransfer to KeyBuffer
     keyBuffer.io.enq <> topKvTransfer.io.deq
@@ -172,12 +144,7 @@ class TopTestMergerModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     merger.io.bufferInputSelect <> keyBuffer.io.bufferOutputSelect
 
     // Connect io of Merger to io of TopTestModule
-    io.merger.isResultValid <> merger.io.isResultValid
-    io.merger.haveWinner <> merger.io.haveWinner
-    io.merger.winnerIndex <> merger.io.winnerIndex
-    io.merger.nextKvPairsToLoad <> merger.io.nextKvPairsToLoad
-    io.merger.reset <> merger.io.reset
-    io.merger.mask <> merger.io.mask
+    io.merger <> merger.io.control
 
     // Connect output of KvTransfer to input of KVOutputBuffer
     kvOutputBuffer.io.enq <> topKvTransfer.io.deqKvPair
@@ -187,8 +154,8 @@ class TopTestMergerModule(busWidth: Int, numberOfBuffers: Int) extends Module {
     io.kvOutput.deq <> kvOutputBuffer.io.deq
     io.kvOutput.lastOutput <> kvOutputBuffer.io.lastOutput
     io.kvOutput.isOutputKey <> kvOutputBuffer.io.isOutputKey
-    io.kvOutput.moveReadPtr <> kvOutputBuffer.io.moveReadPtr
-    io.kvOutput.resetRead <> kvOutputBuffer.io.resetRead
+    io.kvOutput.moveReadPtr <> kvOutputBuffer.io.control.moveReadPtr
+    io.kvOutput.resetRead <> kvOutputBuffer.io.control.resetRead
 }
 
 

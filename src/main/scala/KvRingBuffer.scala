@@ -21,6 +21,16 @@ class KvRingBufferOutputIO(busWidth: Int) extends Bundle {
     val metadataValid = Output(Bool())
 }
 
+class KvRingBufferStatusIO extends Bundle {
+    val empty = Output(Bool())
+    val full = Output(Bool())
+}
+
+// Control inputs for Controller module
+class KvRingBufferControlIO extends Bundle {
+    val moveReadPtr = Input(Bool()) // request buffer to stop reading and move read pointer to the next KV pair
+    val resetRead = Input(Bool()) // request buffer to start reading current KV pair from the beginning
+}
 
 class KVRingBufferIO(busWidth: Int) extends Bundle {
     // Input for KV pairs
@@ -28,9 +38,7 @@ class KVRingBufferIO(busWidth: Int) extends Bundle {
     val lastInput = Input(Bool()) // indicates the last input is presented to the buffer
     val isInputKey = Input(Bool()) // is input value a key or a value
 
-    // Control inputs
-    var moveReadPtr = Input(Bool()) // request buffer to stop reading and move read pointer to the next KV pair
-    var resetRead = Input(Bool()) // request buffer to start reading current KV pair from the beginning
+    val control = new KvRingBufferControlIO
 
     // Outputs
     val deq = Decoupled(UInt(busWidth.W))
@@ -41,9 +49,7 @@ class KVRingBufferIO(busWidth: Int) extends Bundle {
     // Outputs, hack to output key and value len
     val metadataValid = Output(Bool())
 
-    // Status outputs
-    val empty = Output(Bool())
-    val full = Output(Bool())
+    val status = new KvRingBufferStatusIO
 }
 
 
@@ -173,10 +179,10 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
     }
 
-    val moveOrResetRequested = io.moveReadPtr || io.resetRead
+    val moveOrResetRequested = io.control.moveReadPtr || io.control.resetRead
     when (moveOrResetRequested) {
         outputStateReg := requestKeyLen
-        when (io.moveReadPtr) {
+        when (io.control.moveReadPtr) {
             incrRead := true.B
         }
     }
@@ -366,8 +372,8 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     io.deq.bits := Mux(outputStateReg === waitForReadKey || outputStateReg === waitForReadLastKeyChunk || outputStateReg === waitForReadValue || outputStateReg === waitForReadLastValueChunk, shadowReg, data)
     io.isOutputKey := outputStateReg === outputReadKey || outputStateReg === readLastKeyChunk || outputStateReg === waitForReadKey || outputStateReg === waitForReadLastKeyChunk
     io.lastOutput := (outputStateReg === readLastValueChunk || outputStateReg === waitForReadLastValueChunk) || ((outputStateReg === readLastKeyChunk || outputStateReg === waitForReadLastKeyChunk) && io.outputKeyOnly)
-    io.empty := emptyReg
-    io.full := fullReg
+    io.status.empty := emptyReg
+    io.status.full := fullReg
 
     io.metadataValid := outputStateReg === outputReadKeyLen || outputStateReg === outputReadValueLen
 }

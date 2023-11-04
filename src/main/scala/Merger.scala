@@ -3,6 +3,15 @@ package compaction_unit
 import chisel3._
 import chisel3.util._
 
+class MergerControlIO(numberOfBuffers: Int) extends Bundle {
+    val reset = Input(Bool())
+    val mask = Input(UInt(numberOfBuffers.W))
+
+    val isResultValid = Output(Bool())
+    val haveWinner = Output(Bool())
+    val winnerIndex = Output(UInt(log2Ceil(numberOfBuffers).W))
+    val nextKvPairsToLoad = Output(Vec(numberOfBuffers, Bool()))
+}
 
 class MergerIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     // Inputs from KeyBuffer module
@@ -10,15 +19,7 @@ class MergerIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
     val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
     val lastInput = Input(Bool())
 
-    // Control inputs from Controller module
-    val reset = Input(Bool())
-    val mask = Input(UInt(numberOfBuffers.W))
-
-    // Output for Controller module
-    val isResultValid = Output(Bool())
-    val haveWinner = Output(Bool())
-    val winnerIndex = Output(UInt(log2Ceil(numberOfBuffers).W))
-    val nextKvPairsToLoad = Output(Vec(numberOfBuffers, Bool()))
+    val control = new MergerControlIO(numberOfBuffers)
 }
 
 
@@ -97,15 +98,15 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
 
             when (isLastRowChunkLoaded) {
                 mask := keyChunksComparator.io.maskOut
-                when (io.haveWinner) {
+                when (io.control.haveWinner) {
                     state := haveWinner
                 }
             }
         }
 
         is(haveWinner) {
-            when (io.reset) {
-                mask := io.mask
+            when (io.control.reset) {
+                mask := io.control.mask
                 state := comparingKeyChunks
             }
         }
@@ -114,9 +115,9 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
     // isResultValid is important because io.haveWinner can be true/false
     // when a new key chunks are loaded one by one, but only when all of them are ready
     // we can say that the io.haveWinner result is valid
-    io.isResultValid := Mux(state === haveWinner, true.B, isLastRowChunkLoaded)
-    io.haveWinner := Mux(state === haveWinner, true.B, keyChunksComparator.io.haveWinner)
-    io.nextKvPairsToLoad := keyChunksComparator.io.maskOut.asBools
-    io.winnerIndex := keyChunksComparator.io.winnerIndex
+    io.control.isResultValid := Mux(state === haveWinner, true.B, isLastRowChunkLoaded)
+    io.control.haveWinner := Mux(state === haveWinner, true.B, keyChunksComparator.io.haveWinner)
+    io.control.nextKvPairsToLoad := keyChunksComparator.io.maskOut.asBools
+    io.control.winnerIndex := keyChunksComparator.io.winnerIndex
     io.enq.ready := state === comparingKeyChunks
 }

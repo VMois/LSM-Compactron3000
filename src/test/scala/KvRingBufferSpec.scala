@@ -15,7 +15,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
         dut.io.lastInput.poke(false.B)
         dut.io.isInputKey.poke(false.B)
         dut.io.outputKeyOnly.poke(false.B)
-        dut.io.moveReadPtr.poke(false.B)
+        dut.io.control.moveReadPtr.poke(false.B)
     }
 
     "Check default output values" in {
@@ -23,8 +23,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             setDefaultValues(dut)
             dut.io.enq.ready.expect(true.B)
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -61,8 +61,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.bits.poke(0xD.U)
             dut.clock.step(3) // wait for metadata to write
 
-            dut.io.full.expect(true.B)
-            dut.io.empty.expect(false.B)
+            dut.io.status.full.expect(true.B)
+            dut.io.status.empty.expect(false.B)
             dut.io.enq.ready.expect(false.B)
         }
     }
@@ -103,7 +103,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.clock.step()
             }
 
-            dut.io.empty.expect(false.B)
+            dut.io.status.empty.expect(false.B)
 
             // read key len
             dut.io.deq.bits.expect(2.U)
@@ -154,8 +154,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
 
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -214,8 +214,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
 
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -270,8 +270,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
 
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(false.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(false.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -341,8 +341,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
 
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -379,9 +379,9 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.bits.poke(0xD.U)
             dut.clock.step()
 
-            dut.io.moveReadPtr.poke(true.B)
+            dut.io.control.moveReadPtr.poke(true.B)
             dut.clock.step()
-            dut.io.moveReadPtr.poke(false.B)
+            dut.io.control.moveReadPtr.poke(false.B)
 
             while (dut.io.enq.ready.peek().litToBoolean == false) {
                 dut.clock.step()
@@ -466,8 +466,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
 
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -597,8 +597,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.clock.step()
             
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -630,11 +630,11 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.valid.poke(false.B)
             dut.io.lastInput.poke(false.B)
             dut.io.enq.ready.expect(false.B)
-            dut.io.empty.expect(true.B)
+            dut.io.status.empty.expect(true.B)
             while (dut.io.enq.ready.peek().litToBoolean == false) {
                 dut.clock.step()
             }
-            dut.io.empty.expect(false.B)
+            dut.io.status.empty.expect(false.B)
 
             // Write a second key
             dut.io.enq.ready.expect(true.B)
@@ -668,11 +668,11 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.isOutputKey.expect(true.B)
             dut.io.lastOutput.expect(false.B)
             // Move read pointer to the second KV pair
-            dut.io.moveReadPtr.poke(true.B)
+            dut.io.control.moveReadPtr.poke(true.B)
             dut.clock.step()
 
             // buffer reads metadata for the second KV pair, need to wait
-            dut.io.moveReadPtr.poke(false.B)
+            dut.io.control.moveReadPtr.poke(false.B)
             dut.io.deq.valid.expect(false.B)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(false.B)
@@ -710,8 +710,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             
             dut.io.enq.ready.expect(true.B)
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 
@@ -749,11 +749,11 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.valid.poke(false.B)
             dut.io.lastInput.poke(false.B)
             dut.io.enq.ready.expect(false.B)
-            dut.io.empty.expect(true.B)
+            dut.io.status.empty.expect(true.B)
             while (dut.io.enq.ready.peek().litToBoolean == false) {
                 dut.clock.step()
             }
-            dut.io.empty.expect(false.B)
+            dut.io.status.empty.expect(false.B)
             
             // Start reading KV pair
             dut.io.deq.ready.poke(true.B)
@@ -772,11 +772,11 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.lastOutput.expect(false.B)
 
             // Start reading from the beginning of KV pair
-            dut.io.resetRead.poke(true.B)
+            dut.io.control.resetRead.poke(true.B)
             dut.clock.step()
 
             // buffer reads metadata for KV pair, need to wait
-            dut.io.resetRead.poke(false.B)
+            dut.io.control.resetRead.poke(false.B)
             dut.io.deq.valid.expect(false.B)
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(false.B)
@@ -825,8 +825,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             
             dut.io.enq.ready.expect(true.B)
             dut.io.deq.valid.expect(false.B)
-            dut.io.empty.expect(true.B)
-            dut.io.full.expect(false.B)
+            dut.io.status.empty.expect(true.B)
+            dut.io.status.full.expect(false.B)
         }
     }
 }

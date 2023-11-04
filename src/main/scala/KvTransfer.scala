@@ -3,6 +3,14 @@ package compaction_unit
 import chisel3._
 import chisel3.util._
 
+class KvTransferControlIO(numberOfBuffers: Int) extends Bundle {
+    val command = Input(UInt(2.W))
+    val stop = Input(Bool())
+    // TODO: bufferInputSelect can be replaced with mask
+    val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
+    val mask = Input(UInt(numberOfBuffers.W))
+    val busy = Output(Bool())
+}
 
 class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     // inputs and outputs for receving data from buffers
@@ -19,13 +27,7 @@ class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     // if true, output to KV output buffer
     var outputSelect = Output(Bool())
 
-    // inputs and outputs for control of the module
-    val command = Input(UInt(2.W))
-    val stop = Input(Bool())
-    // TODO: bufferInputSelect can be replaced with mask
-    val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
-    val mask = Input(UInt(numberOfBuffers.W))
-    val busy = Output(Bool())
+    val control = new KvTransferControlIO(numberOfBuffers)
 
     // outputs for key buffer and KV output buffer
     val deq = Decoupled(UInt(busWidth.W))
@@ -76,14 +78,14 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     switch (state) {
         is (idle) {
             // Start command to trasnfer keys to Key Buffer
-            when (io.command === "b01".U) {
-                bufferIdx := PriorityEncoder(io.mask)
+            when (io.control.command === "b01".U) {
+                bufferIdx := PriorityEncoder(io.control.mask)
                 state := clearKeyBuffer
-                mask := io.mask
+                mask := io.control.mask
 
                 // Reset moreChunksToLoad
                 for (i <- 0 until numberOfBuffers) {
-                    when (io.mask(i) === 0.U) {
+                    when (io.control.mask(i) === 0.U) {
                         moreChunksToLoad(i) := false.B
                     } .otherwise {
                         moreChunksToLoad(i) := true.B
@@ -91,8 +93,8 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                 }
             }
 
-            when (io.command === "b10".U) {
-                bufferIdx := io.bufferInputSelect
+            when (io.control.command === "b10".U) {
+                bufferIdx := io.control.bufferInputSelect
                 state := resetBufferRead
             }
         }
@@ -100,7 +102,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
             state := loadChunk
         }
         is (loadChunk) { 
-            when (io.stop === false.B && moreChunksToLoad(bufferIdx) === true.B) {
+            when (io.control.stop === false.B && moreChunksToLoad(bufferIdx) === true.B) {
                 when (io.enq.valid) {
                     when (io.deq.ready) {
                         bufferIdx := nextIndexSelector.io.nextIndex
@@ -126,17 +128,17 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                 moreChunksToLoad(bufferIdx) := false.B
             }
 
-            when (io.stop) {
+            when (io.control.stop) {
                 state := idle
             }
         }
         is (waitForTransfer) {
-            when (io.deq.ready && !io.stop) {
+            when (io.deq.ready && !io.control.stop) {
                 bufferIdx := nextIndexSelector.io.nextIndex
                 state := loadChunk
             }
 
-            when (io.stop) {
+            when (io.control.stop) {
                 state := idle
             }
         }
@@ -156,14 +158,14 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     io.bufferSelect := bufferIdx
     io.isOutputKey := io.isInputKey
     io.outputKeyOnly := (state === loadChunk || state === waitForTransfer) && state =/= transferKvPair
-    io.busy := state =/= idle
+    io.control.busy := state =/= idle
 
-    // TODO: with io.stop, clearKeyBuffers will be signaled twice to KeyBuffer, not efficient
+    // TODO: with io.control.stop, clearKeyBuffers will be signaled twice to KeyBuffer, not efficient
     //       but we also cannot remove "state === clearKeyBuffer" check as there is a chance 
     //       that KvTransfer will transfer all key chunks and go to idle state by itself
     //       and it will require clearKeyBuffer step when command is issued again.
     //       This can be improved, but, for now, it is not a priority.
-    io.clearKeyBuffer := state === clearKeyBuffer || io.stop
+    io.clearKeyBuffer := state === clearKeyBuffer || io.control.stop
     io.lastOutput := Mux(state === waitForTransfer, lastKeyChunk, io.lastInput)
 
     // input buffers need to be reset when we start loading new chunks, or transfer KV pair
@@ -190,12 +192,8 @@ class TopKvTransferIO(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Bundl
     val isInputKey = Input(Vec(numberOfBuffers, Bool()))
     
     // control signals for KvTransfer module
-    val command = Input(UInt(2.W))
-    val stop = Input(Bool())
-    val bufferInputSelect = Input(UInt(log2Ceil(numberOfBuffers).W))
-    val busy = Output(Bool())
-    val mask = Input(UInt(numberOfBuffers.W))
-
+    val control = new KvTransferControlIO(numberOfBuffers)
+      
     // TODO: outputs are copied from KvTransfer module, not good to have duplicate code
     val bufferSelect = Output(UInt(log2Ceil(numberOfBuffers).W))
     val outputKeyOnly = Output(Bool())
@@ -217,12 +215,7 @@ class TopKvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module 
 
     val kvTransfer = Module(new KvTransfer(busWidth, numberOfBuffers))
 
-    // kvTransfer controls
-    kvTransfer.io.bufferInputSelect <> io.bufferInputSelect
-    kvTransfer.io.command <> io.command
-    kvTransfer.io.stop <> io.stop
-    kvTransfer.io.busy <> io.busy
-    kvTransfer.io.mask <> io.mask
+    kvTransfer.io.control <> io.control
 
     // kvTransfer outputs
     kvTransfer.io.deq <> DontCare
