@@ -28,8 +28,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
         }
     }
 
-    "Should be not ready when full" in {
-        test(new KVRingBuffer(2, busWidth = 4, keySize = 8, valueSize = 8, metadataSize = 8)) { dut =>
+    "Should not be ready when full" in {
+        test(new KVRingBuffer(2, busWidth = 4, keySize = 8, valueSize = 8, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             setDefaultValues(dut)
             dut.clock.step()
 
@@ -45,10 +45,14 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.bits.poke(0xC.U)
             dut.clock.step()
             dut.io.enq.valid.poke(false.B)
+            dut.io.lastInput.poke(false.B)
 
             while (dut.io.enq.ready.peek().litToBoolean == false) {
                 dut.clock.step()
             }
+
+            dut.io.status.empty.expect(false.B)
+            dut.io.status.full.expect(false.B)
 
             // Write KV pair 2
             dut.io.enq.bits.poke(0xB.U)
@@ -59,8 +63,79 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.isInputKey.poke(false.B)
             dut.io.lastInput.poke(true.B)
             dut.io.enq.bits.poke(0xD.U)
-            dut.clock.step(3) // wait for metadata to write
 
+            
+            dut.clock.step() // wait for metadata to write
+            dut.io.lastInput.poke(false.B)
+            dut.io.enq.valid.poke(false.B)
+            dut.clock.step(2)
+
+            dut.io.status.full.expect(true.B)
+            dut.io.status.empty.expect(false.B)
+            dut.io.enq.ready.expect(false.B)
+        }
+    }
+
+    "Should not overwrite memory if valid is not set and buffer is full" in {
+        test(new KVRingBuffer(2, busWidth = 4, keySize = 8, valueSize = 8, metadataSize = 8)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            setDefaultValues(dut)
+            dut.clock.step()
+
+            // Write KV pair 1
+            dut.io.enq.ready.expect(true.B)
+            dut.io.enq.bits.poke(0xA.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.isInputKey.poke(false.B)
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xC.U)
+            dut.clock.step()
+            dut.io.enq.valid.poke(false.B)
+            dut.io.lastInput.poke(false.B)
+
+            while (dut.io.enq.ready.peek().litToBoolean == false) {
+                dut.clock.step()
+            }
+
+            dut.io.status.empty.expect(false.B)
+            dut.io.status.full.expect(false.B)
+
+            // Write KV pair 2
+            dut.io.enq.bits.poke(0xB.U)
+            dut.io.enq.valid.poke(true.B)
+            dut.io.isInputKey.poke(true.B)
+            dut.clock.step()
+
+            dut.io.isInputKey.poke(false.B)
+            dut.io.lastInput.poke(true.B)
+            dut.io.enq.bits.poke(0xD.U)
+
+            
+            dut.clock.step() // wait for metadata to write
+            dut.io.lastInput.poke(false.B)
+            dut.io.enq.valid.poke(false.B)
+            dut.clock.step(2)
+
+            dut.io.status.full.expect(true.B)
+            dut.io.status.empty.expect(false.B)
+            dut.io.enq.ready.expect(false.B)
+
+            // Read KV pair 1
+            dut.io.deq.ready.poke(true.B)
+            dut.io.deq.bits.expect(0xA.U)
+            dut.io.deq.valid.expect(true.B)
+            dut.io.outputKeyOnly.poke(false.B)
+            dut.clock.step()
+            
+            dut.io.deq.bits.expect(0xC.U)
+            dut.io.deq.valid.expect(true.B)
+            dut.clock.step()
+
+            dut.io.deq.ready.poke(false.B)
+            
+            // We did not move a pointer
             dut.io.status.full.expect(true.B)
             dut.io.status.empty.expect(false.B)
             dut.io.enq.ready.expect(false.B)

@@ -145,7 +145,10 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     val writeDataPtr = Mux(inputStateReg === writeData, Mux(io.isInputKey, metadataAddressOffset.U, (metadataAddressOffset + keyAddressOffset).U) + Mux(io.isInputKey, writeKeyChunkPtr, writeValueChunkPtr), 0.U)
     val metadataOffsetPtr = Mux(inputStateReg === inputSaveValueLen, 1.U, 0.U)
     val writeFullPtr = writePtr * offset + writeDataPtr + metadataOffsetPtr
-    mem.write(writeFullPtr, Mux(inputStateReg === writeData, io.enq.bits, writeReg))
+
+    when (io.enq.valid || inputStateReg === inputSaveKeyLen || inputStateReg === inputSaveValueLen) {
+        mem.write(writeFullPtr, Mux(inputStateReg === writeData, io.enq.bits, writeReg))
+    }
 
     switch(inputStateReg) {
         is(writeData) {
