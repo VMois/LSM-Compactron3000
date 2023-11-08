@@ -12,7 +12,7 @@ class DummyDecoderSpec extends AnyFreeSpec with ChiselScalatestTester {
 
     "Transfer last KV Pair from AXI to buffer" in {
         test(new DummyDecoder).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            dut.io.readyToAccept.poke(true.B)
+            dut.io.control.readyToAccept.poke(true.B)
             dut.io.input.axi_s.tvalid.poke(true.B)
 
             dut.io.output.enq.ready.poke(true.B)
@@ -20,7 +20,7 @@ class DummyDecoderSpec extends AnyFreeSpec with ChiselScalatestTester {
             
             // Send status data
             dut.io.input.axi_s.tdata.poke(statusIsLast2Keys4Values.U)
-            dut.io.lastKvPairSeen.expect(false.B)
+            dut.io.control.lastKvPairSeen.expect(false.B)
             dut.io.output.enq.valid.expect(false.B)
             dut.clock.step()
             
@@ -50,7 +50,7 @@ class DummyDecoderSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.clock.step()
             }
             dut.io.output.enq.valid.expect(false.B)
-            dut.io.lastKvPairSeen.expect(true.B)
+            dut.io.control.lastKvPairSeen.expect(true.B)
         }
     }
 }
