@@ -8,6 +8,11 @@ class DecoderInputIO(busWidth: Int) extends Bundle {
     val axi_s = Flipped(new AxiStreamIO(busWidth))
 }
 
+class DummyDecoderControlIO extends Bundle {
+    val readyToAccept = Input(Bool())
+    val lastKvPairSeen = Output(Bool())
+}
+
 
 class DummyDecoder(busWidth: Int = 32) extends Module {
     assert (busWidth == 32, "Currently only 32 bits bus is supported")
@@ -15,9 +20,7 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
     val io = IO(new Bundle {
         val input = new DecoderInputIO(busWidth)
         val output = Flipped(new KvRingBufferInputIO(busWidth))
-
-        val readyToAccept = Input(Bool())
-        val lastKvPairSeen = Output(Bool())
+        val control = new DummyDecoderControlIO
     })
 
     // TODO: do not care about it for now but it might need a fix
@@ -69,8 +72,8 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
     }
 
     // TODO: readyToAccept maybe needs to be saved in register
-    io.input.axi_s.tready := io.readyToAccept && io.output.enq.ready
-    io.lastKvPairSeen := isLastKvPair
+    io.input.axi_s.tready := io.control.readyToAccept && io.output.enq.ready
+    io.control.lastKvPairSeen := isLastKvPair
 
     io.output.enq.valid := (state === readKey || state === readValue) && io.input.axi_s.tvalid
     io.output.enq.bits := io.input.axi_s.tdata

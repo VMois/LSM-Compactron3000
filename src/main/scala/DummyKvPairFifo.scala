@@ -32,7 +32,7 @@ class DummyKvPairFifo(busWidth: Int = 32) extends Module {
     encoder.io.output.axi_m <> io.axi_m
     decoder.io.input.axi_s <> io.axi_s
 
-    decoder.io.readyToAccept := true.B
+    decoder.io.control.readyToAccept := true.B
     decoder.io.output.enq <> kvOutputBuffer.io.enq
     decoder.io.output.isInputKey <> kvOutputBuffer.io.isInputKey
     decoder.io.output.lastInput <> kvOutputBuffer.io.lastInput
