@@ -24,6 +24,7 @@ class KvRingBufferOutputIO(busWidth: Int) extends Bundle {
 class KvRingBufferStatusIO extends Bundle {
     val empty = Output(Bool())
     val full = Output(Bool())
+    val halfFull = Output(Bool())
 }
 
 // Control inputs for Controller module
@@ -129,6 +130,8 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     val emptyReg = RegInit(true.B)
     val fullReg = RegInit(false.B)
     val lastInput = RegInit(false.B)
+
+    val distanceBetweenPtrs = Mux(writePtr >= readPtr, writePtr - readPtr, depth.U - readPtr + writePtr)
 
     // Output states
     val requestKeyLen :: requestValueLen :: outputReadKeyLen :: outputReadValueLen :: outputReadKey :: waitForReadKey :: readLastKeyChunk :: waitForReadLastKeyChunk :: outputReadValue :: waitForReadValue :: readLastValueChunk :: waitForReadLastValueChunk :: Nil = Enum(12)
@@ -369,6 +372,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     io.lastOutput := (outputStateReg === readLastValueChunk || outputStateReg === waitForReadLastValueChunk) || ((outputStateReg === readLastKeyChunk || outputStateReg === waitForReadLastKeyChunk) && io.outputKeyOnly)
     io.status.empty := emptyReg
     io.status.full := fullReg
+    io.status.halfFull := distanceBetweenPtrs >= (depth / 2).U || io.status.full
 
     io.metadataValid := outputStateReg === outputReadKeyLen || outputStateReg === outputReadValueLen
 }
