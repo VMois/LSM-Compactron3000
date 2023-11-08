@@ -3,6 +3,14 @@ package compaction_unit
 import chisel3._
 import chisel3.util._
 
+
+object KvTransferCommand {
+    val nop = "b00".U
+    val transferKeys = "b01".U
+    val transferKvPair = "b10".U
+}
+
+
 class KvTransferControlIO(numberOfBuffers: Int) extends Bundle {
     val command = Input(UInt(2.W))
     val stop = Input(Bool())
@@ -11,6 +19,7 @@ class KvTransferControlIO(numberOfBuffers: Int) extends Bundle {
     val mask = Input(UInt(numberOfBuffers.W))
     val busy = Output(Bool())
 }
+
 
 class KvTransferIO(busWidth: Int, numberOfBuffers: Int = 4) extends Bundle {
     // inputs and outputs for receving data from buffers
@@ -78,7 +87,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
     switch (state) {
         is (idle) {
             // Start command to trasnfer keys to Key Buffer
-            when (io.control.command === "b01".U) {
+            when (io.control.command === KvTransferCommand.transferKeys) {
                 bufferIdx := PriorityEncoder(io.control.mask)
                 state := clearKeyBuffer
                 mask := io.control.mask
@@ -93,7 +102,7 @@ class KvTransfer(busWidth: Int = 4, numberOfBuffers: Int = 4) extends Module {
                 }
             }
 
-            when (io.control.command === "b10".U) {
+            when (io.control.command === KvTransferCommand.transferKvPair) {
                 bufferIdx := io.control.bufferInputSelect
                 state := resetBufferRead
             }
