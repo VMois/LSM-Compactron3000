@@ -185,9 +185,11 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
     }
 
+    val writeIsIncoming = (inputStateReg === inputSaveKeyLen || inputStateReg === inputSaveValueLen)
+
     def moveReadPtr() = {
         incrRead := true.B
-        emptyReg := nextRead === writePtr
+        emptyReg := nextRead === writePtr && ~writeIsIncoming
     }
 
     val moveOrResetRequested = io.control.moveReadPtr || io.control.resetRead
@@ -203,7 +205,9 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     val shadowReg = RegInit(0.U(busWidth.W))
 
     switch(outputStateReg) {
-        is(requestKeyLen) { 
+        is(requestKeyLen) {
+            // If write is incoming and buffer is empty it is still fine to request a key len
+            // This is fine because by the time we read the key len in the next cycle, thr write will be done 
             when(!emptyReg && !moveOrResetRequested) {
                 readKeyChunkPtr := 0.U
                 readValueChunkPtr := 0.U

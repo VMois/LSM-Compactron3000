@@ -763,9 +763,8 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.isOutputKey.expect(false.B)
             dut.io.lastOutput.expect(false.B)
 
-            // TODO: because previous write is not finished yet
-            //       buffer thinks that it is empty
-            dut.io.status.empty.expect(true.B)
+            // A new write is already incoming so we should not think the buffer is empty
+            dut.io.status.empty.expect(false.B)
 
             // buffer reads metadata for the second KV pair, need to wait
             while (dut.io.deq.valid.peek().litToBoolean == false) {
