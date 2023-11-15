@@ -25,6 +25,7 @@ class ControllerIO(numberOfBuffers: Int) extends Bundle {
     val outputBuffer = Flipped(new KvRingBufferStatusIO)
     val kvTransfer = Flipped(new KvTransferControlIO(numberOfBuffers))
     val merger = Flipped(new MergerControlIO(numberOfBuffers))
+    val encoder = Flipped(new EncoderControlIO)
 }
 
 class Controller(numberOfBuffers: Int) extends Module {
@@ -53,6 +54,7 @@ class Controller(numberOfBuffers: Int) extends Module {
     val onlyOneBufferActive = numberOfActiveBuffers === 1.U
     val noActiveBuffers = numberOfActiveBuffers === 0.U
     val buffersHaveData = (maskAsUInt & Cat(buffersStatus.reverse)) === maskAsUInt && ~noActiveBuffers
+    val shouldSendLastDataSignal = (state === fillBuffers && noActiveBuffers && io.outputBuffer.empty) || (state === waitForOutputBuffer && io.outputBuffer.empty)
 
     switch (state) {
         is (idle) {
@@ -120,6 +122,9 @@ class Controller(numberOfBuffers: Int) extends Module {
 
     // Controller controls
     io.control.busy := state =/= idle
+
+    // Encoder control
+    io.encoder.lastDataIsProcessed := shouldSendLastDataSignal
 
     // Decoders outputs
     // TODO: do we need readyToAccept? If buffer is full, decoder will not send data anyway

@@ -111,6 +111,8 @@ class CompactionUnit(busWidth: Int, numberOfBuffers: Int) extends Module {
     outputBuffer.io.control.moveReadPtr <> DontCare
     outputBuffer.io.control.resetRead <> DontCare
 
+    // Connect controller to encoder
+    controller.io.encoder.lastDataIsProcessed <> encoder.io.control.lastDataIsProcessed
 }
 
 

@@ -29,6 +29,9 @@ class DummyKvPairFifo(busWidth: Int = 32) extends Module {
     encoder.io.input.metadataValid <> kvOutputBuffer.io.metadataValid
     encoder.io.input.outputKeyOnly <> kvOutputBuffer.io.outputKeyOnly
 
+    // just to mock a signal to have a previous behaviour
+    encoder.io.control.lastDataIsProcessed := false.B
+
     encoder.io.output.axi_m <> io.axi_m
     decoder.io.input.axi_s <> io.axi_s
 

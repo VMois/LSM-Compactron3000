@@ -4,11 +4,16 @@ import chisel3._
 import chisel3.util._
 
 
+class EncoderControlIO extends Bundle {
+    val lastDataIsProcessed = Input(Bool())
+}
+
 class EncoderOutputIO(busWidth: Int) extends Bundle {
     val axi_m = new AxiStreamIO(busWidth)
 }
 
 class DummyEncoderIO(busWidth: Int) extends Bundle {
+    val control = new EncoderControlIO
     val input = Flipped(new KvRingBufferOutputIO(busWidth))
     val output = new EncoderOutputIO(busWidth)
 }
@@ -54,6 +59,6 @@ class DummyEncoder(busWidth: Int = 32) extends Module {
     io.input.outputKeyOnly := DontCare
     io.input.deq.ready := state === readKvPair && io.output.axi_m.tready
     io.output.axi_m.tdata := Mux(state === outputStatus, status, io.input.deq.bits)
-    io.output.axi_m.tvalid := state === outputStatus | io.input.deq.valid
-    io.output.axi_m.tlast := false.B
+    io.output.axi_m.tvalid := state === outputStatus | io.input.deq.valid | io.output.axi_m.tlast
+    io.output.axi_m.tlast := state === idle && io.control.lastDataIsProcessed
 }
