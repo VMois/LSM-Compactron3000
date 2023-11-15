@@ -139,10 +139,12 @@ class CompactionUnitSpec extends AnyFreeSpec with ChiselScalatestTester {
                 // Check KV1
                 dut.io.encoder.axi_m.tdata.expect(statusNotLast2Keys4Values.U)
                 dut.io.encoder.axi_m.tvalid.expect(true.B)
+                dut.io.encoder.axi_m.tlast.expect(false.B)
                 dut.clock.step()
                 
                 for (i <- 0 until 2) {
                     dut.io.encoder.axi_m.tvalid.expect(true.B)
+                    dut.io.encoder.axi_m.tlast.expect(false.B)
                     dut.io.encoder.axi_m.tdata.expect((i + 1000).U)
                     dut.clock.step()
                 }
@@ -164,11 +166,13 @@ class CompactionUnitSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.encoder.axi_m.tready.poke(true.B)
 
                 dut.io.encoder.axi_m.tdata.expect(statusNotLast3Keys4Values.U)
+                dut.io.encoder.axi_m.tlast.expect(false.B)
                 dut.io.encoder.axi_m.tvalid.expect(true.B)
                 dut.clock.step()
 
                 for (i <- 0 until 3) {
                     dut.io.encoder.axi_m.tvalid.expect(true.B)
+                    dut.io.encoder.axi_m.tlast.expect(false.B)
                     dut.io.encoder.axi_m.tdata.expect((i + 2000).U)
                     dut.clock.step()
                 }
@@ -186,10 +190,12 @@ class CompactionUnitSpec extends AnyFreeSpec with ChiselScalatestTester {
 
                 dut.io.encoder.axi_m.tdata.expect(statusNotLast3Keys4Values.U)
                 dut.io.encoder.axi_m.tvalid.expect(true.B)
+                dut.io.encoder.axi_m.tlast.expect(false.B)
                 dut.clock.step()
 
                 for (i <- 0 until 3) {
                     dut.io.encoder.axi_m.tvalid.expect(true.B)
+                    dut.io.encoder.axi_m.tlast.expect(false.B)
                     dut.io.encoder.axi_m.tdata.expect((i + 4000).U)
                     dut.clock.step()
                 }
@@ -199,6 +205,9 @@ class CompactionUnitSpec extends AnyFreeSpec with ChiselScalatestTester {
                     dut.io.encoder.axi_m.tdata.expect((i + 5000).U)
                     dut.clock.step()
                 }
+
+                dut.io.encoder.axi_m.tvalid.expect(true.B)
+                dut.io.encoder.axi_m.tlast.expect(true.B)
 
                 // Make sure we stop being busy after some time
                 while (dut.io.control.busy.peek().litToBoolean == true) {
