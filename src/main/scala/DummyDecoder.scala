@@ -73,7 +73,7 @@ class DummyDecoder(busWidth: Int = 32) extends Module {
 
     // TODO: readyToAccept maybe needs to be saved in register
     io.input.axi_s.tready := io.control.readyToAccept && io.output.enq.ready
-    io.control.lastKvPairSeen := isLastKvPair
+    io.control.lastKvPairSeen := lastSeen 
 
     io.output.enq.valid := (state === readKey || state === readValue) && io.input.axi_s.tvalid
     io.output.enq.bits := io.input.axi_s.tdata
