@@ -163,6 +163,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
                     when(io.lastInput) {
                         inputStateReg := inputSaveKeyLen
                         writeReg := writeKeyChunkPtr
+                        emptyReg := false.B
                     }
                 }
             }
@@ -174,7 +175,6 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
         }
 
         is(inputSaveValueLen) {
-            emptyReg := false.B
             incrWrite := true.B
             fullReg := nextWrite === readPtr
 

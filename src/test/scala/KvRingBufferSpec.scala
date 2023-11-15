@@ -717,7 +717,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.valid.poke(false.B)
             dut.io.lastInput.poke(false.B)
             dut.io.enq.ready.expect(false.B)
-            dut.io.status.empty.expect(true.B)
+            dut.io.status.empty.expect(false.B)
             while (dut.io.enq.ready.peek().litToBoolean == false) {
                 dut.clock.step()
             }
@@ -838,7 +838,7 @@ class KvRingBufferSpec extends AnyFreeSpec with ChiselScalatestTester {
             dut.io.enq.valid.poke(false.B)
             dut.io.lastInput.poke(false.B)
             dut.io.enq.ready.expect(false.B)
-            dut.io.status.empty.expect(true.B)
+            dut.io.status.empty.expect(false.B)
             while (dut.io.enq.ready.peek().litToBoolean == false) {
                 dut.clock.step()
             }
