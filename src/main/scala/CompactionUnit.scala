@@ -147,5 +147,5 @@ class TopCompactionUnit(busWidth: Int, numberOfBuffers: Int) extends Module {
 
 object TopCompactionUnit extends App {
     println("Generating the TopCompactionUnit Verilog...")
-    (new chisel3.stage.ChiselStage).emitVerilog(new TopCompactionUnit(busWidth = 32, numberOfBuffers = 2), Array("--target-dir", "generated"))
+    (new chisel3.stage.ChiselStage).emitVerilog(new TopCompactionUnit(busWidth = 32, numberOfBuffers = 2), Array("--target-dir", "Vivado/ip_repo/compaction_unit/CompactionUnit.srcs/sources_1/new/src", "--target:fpga"))
 }
