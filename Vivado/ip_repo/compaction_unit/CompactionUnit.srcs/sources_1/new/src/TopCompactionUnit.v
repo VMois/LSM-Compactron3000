@@ -1379,9 +1379,9 @@ module KeyChunksComparator(
   wire [32:0] _modifiedInputs_1_T_3 = {1'h1,io_in_1}; // @[KeyChunksComparator.scala 34:88]
   wire [32:0] modifiedInputs_1 = io_maskIn[1] ? _modifiedInputs_1_T_2 : _modifiedInputs_1_T_3; // @[KeyChunksComparator.scala 34:37]
   wire  smallestIndex = modifiedInputs_0 <= modifiedInputs_1 ? 1'h0 : 1'h1; // @[KeyChunksComparator.scala 42:12]
-  wire [32:0] _GEN_5 = smallestIndex ? modifiedInputs_1 : modifiedInputs_0; // @[KeyChunksComparator.scala 49:{62,62}]
-  wire  equalityMask_0 = _GEN_5 == modifiedInputs_0; // @[KeyChunksComparator.scala 49:62]
-  wire  equalityMask_1 = _GEN_5 == modifiedInputs_1; // @[KeyChunksComparator.scala 49:62]
+  wire [32:0] _GEN_5 = smallestIndex ? modifiedInputs_1 : modifiedInputs_0; // @[KeyChunksComparator.scala 49:{58,58}]
+  wire  equalityMask_0 = _GEN_5 == modifiedInputs_0; // @[KeyChunksComparator.scala 49:58]
+  wire  equalityMask_1 = _GEN_5 == modifiedInputs_1; // @[KeyChunksComparator.scala 49:58]
   wire [1:0] _countOnes_T = {equalityMask_1,equalityMask_0}; // @[KeyChunksComparator.scala 54:43]
   wire [1:0] countOnes = _countOnes_T[0] + _countOnes_T[1]; // @[Bitwise.scala 51:90]
   wire  hasOnlyOneOne = countOnes == 2'h1; // @[KeyChunksComparator.scala 55:35]
@@ -2668,27 +2668,27 @@ module TopCompactionUnit(
 );
   wire [31:0] controlAdapter_status; // @[CompactionUnit.scala 135:32]
   wire [31:0] controlAdapter_control; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_ACLK; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_ARESETN; // @[CompactionUnit.scala 135:32]
-  wire [3:0] controlAdapter_axi_S_AXI_AWADDR; // @[CompactionUnit.scala 135:32]
-  wire [2:0] controlAdapter_axi_S_AXI_AWPROT; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_AWVALID; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_AWREADY; // @[CompactionUnit.scala 135:32]
-  wire [31:0] controlAdapter_axi_S_AXI_WDATA; // @[CompactionUnit.scala 135:32]
-  wire [3:0] controlAdapter_axi_S_AXI_WSTRB; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_WVALID; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_WREADY; // @[CompactionUnit.scala 135:32]
-  wire [1:0] controlAdapter_axi_S_AXI_BRESP; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_BVALID; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_BREADY; // @[CompactionUnit.scala 135:32]
-  wire [3:0] controlAdapter_axi_S_AXI_ARADDR; // @[CompactionUnit.scala 135:32]
-  wire [2:0] controlAdapter_axi_S_AXI_ARPROT; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_ARVALID; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_ARREADY; // @[CompactionUnit.scala 135:32]
-  wire [31:0] controlAdapter_axi_S_AXI_RDATA; // @[CompactionUnit.scala 135:32]
-  wire [1:0] controlAdapter_axi_S_AXI_RRESP; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_RVALID; // @[CompactionUnit.scala 135:32]
-  wire  controlAdapter_axi_S_AXI_RREADY; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_ACLK; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_ARESETN; // @[CompactionUnit.scala 135:32]
+  wire [3:0] controlAdapter_S_AXI_AWADDR; // @[CompactionUnit.scala 135:32]
+  wire [2:0] controlAdapter_S_AXI_AWPROT; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_AWVALID; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_AWREADY; // @[CompactionUnit.scala 135:32]
+  wire [31:0] controlAdapter_S_AXI_WDATA; // @[CompactionUnit.scala 135:32]
+  wire [3:0] controlAdapter_S_AXI_WSTRB; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_WVALID; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_WREADY; // @[CompactionUnit.scala 135:32]
+  wire [1:0] controlAdapter_S_AXI_BRESP; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_BVALID; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_BREADY; // @[CompactionUnit.scala 135:32]
+  wire [3:0] controlAdapter_S_AXI_ARADDR; // @[CompactionUnit.scala 135:32]
+  wire [2:0] controlAdapter_S_AXI_ARPROT; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_ARVALID; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_ARREADY; // @[CompactionUnit.scala 135:32]
+  wire [31:0] controlAdapter_S_AXI_RDATA; // @[CompactionUnit.scala 135:32]
+  wire [1:0] controlAdapter_S_AXI_RRESP; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_RVALID; // @[CompactionUnit.scala 135:32]
+  wire  controlAdapter_S_AXI_RREADY; // @[CompactionUnit.scala 135:32]
   wire  compactionUnit_clock; // @[CompactionUnit.scala 136:32]
   wire  compactionUnit_reset; // @[CompactionUnit.scala 136:32]
   wire  compactionUnit_io_control_start; // @[CompactionUnit.scala 136:32]
@@ -2706,27 +2706,27 @@ module TopCompactionUnit(
   ControlAdapterVerilog controlAdapter ( // @[CompactionUnit.scala 135:32]
     .status(controlAdapter_status),
     .control(controlAdapter_control),
-    .axi_S_AXI_ACLK(controlAdapter_axi_S_AXI_ACLK),
-    .axi_S_AXI_ARESETN(controlAdapter_axi_S_AXI_ARESETN),
-    .axi_S_AXI_AWADDR(controlAdapter_axi_S_AXI_AWADDR),
-    .axi_S_AXI_AWPROT(controlAdapter_axi_S_AXI_AWPROT),
-    .axi_S_AXI_AWVALID(controlAdapter_axi_S_AXI_AWVALID),
-    .axi_S_AXI_AWREADY(controlAdapter_axi_S_AXI_AWREADY),
-    .axi_S_AXI_WDATA(controlAdapter_axi_S_AXI_WDATA),
-    .axi_S_AXI_WSTRB(controlAdapter_axi_S_AXI_WSTRB),
-    .axi_S_AXI_WVALID(controlAdapter_axi_S_AXI_WVALID),
-    .axi_S_AXI_WREADY(controlAdapter_axi_S_AXI_WREADY),
-    .axi_S_AXI_BRESP(controlAdapter_axi_S_AXI_BRESP),
-    .axi_S_AXI_BVALID(controlAdapter_axi_S_AXI_BVALID),
-    .axi_S_AXI_BREADY(controlAdapter_axi_S_AXI_BREADY),
-    .axi_S_AXI_ARADDR(controlAdapter_axi_S_AXI_ARADDR),
-    .axi_S_AXI_ARPROT(controlAdapter_axi_S_AXI_ARPROT),
-    .axi_S_AXI_ARVALID(controlAdapter_axi_S_AXI_ARVALID),
-    .axi_S_AXI_ARREADY(controlAdapter_axi_S_AXI_ARREADY),
-    .axi_S_AXI_RDATA(controlAdapter_axi_S_AXI_RDATA),
-    .axi_S_AXI_RRESP(controlAdapter_axi_S_AXI_RRESP),
-    .axi_S_AXI_RVALID(controlAdapter_axi_S_AXI_RVALID),
-    .axi_S_AXI_RREADY(controlAdapter_axi_S_AXI_RREADY)
+    .S_AXI_ACLK(controlAdapter_S_AXI_ACLK),
+    .S_AXI_ARESETN(controlAdapter_S_AXI_ARESETN),
+    .S_AXI_AWADDR(controlAdapter_S_AXI_AWADDR),
+    .S_AXI_AWPROT(controlAdapter_S_AXI_AWPROT),
+    .S_AXI_AWVALID(controlAdapter_S_AXI_AWVALID),
+    .S_AXI_AWREADY(controlAdapter_S_AXI_AWREADY),
+    .S_AXI_WDATA(controlAdapter_S_AXI_WDATA),
+    .S_AXI_WSTRB(controlAdapter_S_AXI_WSTRB),
+    .S_AXI_WVALID(controlAdapter_S_AXI_WVALID),
+    .S_AXI_WREADY(controlAdapter_S_AXI_WREADY),
+    .S_AXI_BRESP(controlAdapter_S_AXI_BRESP),
+    .S_AXI_BVALID(controlAdapter_S_AXI_BVALID),
+    .S_AXI_BREADY(controlAdapter_S_AXI_BREADY),
+    .S_AXI_ARADDR(controlAdapter_S_AXI_ARADDR),
+    .S_AXI_ARPROT(controlAdapter_S_AXI_ARPROT),
+    .S_AXI_ARVALID(controlAdapter_S_AXI_ARVALID),
+    .S_AXI_ARREADY(controlAdapter_S_AXI_ARREADY),
+    .S_AXI_RDATA(controlAdapter_S_AXI_RDATA),
+    .S_AXI_RRESP(controlAdapter_S_AXI_RRESP),
+    .S_AXI_RVALID(controlAdapter_S_AXI_RVALID),
+    .S_AXI_RREADY(controlAdapter_S_AXI_RREADY)
   );
   CompactionUnit compactionUnit ( // @[CompactionUnit.scala 136:32]
     .clock(compactionUnit_clock),
@@ -2744,33 +2744,33 @@ module TopCompactionUnit(
     .io_decoders_1_axi_s_tvalid(compactionUnit_io_decoders_1_axi_s_tvalid),
     .io_decoders_1_axi_s_tready(compactionUnit_io_decoders_1_axi_s_tready)
   );
-  assign io_control_S_AXI_AWREADY = controlAdapter_axi_S_AXI_AWREADY; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_WREADY = controlAdapter_axi_S_AXI_WREADY; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_BRESP = controlAdapter_axi_S_AXI_BRESP; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_BVALID = controlAdapter_axi_S_AXI_BVALID; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_ARREADY = controlAdapter_axi_S_AXI_ARREADY; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_RDATA = controlAdapter_axi_S_AXI_RDATA; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_RRESP = controlAdapter_axi_S_AXI_RRESP; // @[CompactionUnit.scala 145:27]
-  assign io_control_S_AXI_RVALID = controlAdapter_axi_S_AXI_RVALID; // @[CompactionUnit.scala 145:27]
+  assign io_control_S_AXI_AWREADY = controlAdapter_S_AXI_AWREADY; // @[CompactionUnit.scala 153:30]
+  assign io_control_S_AXI_WREADY = controlAdapter_S_AXI_WREADY; // @[CompactionUnit.scala 157:29]
+  assign io_control_S_AXI_BRESP = controlAdapter_S_AXI_BRESP; // @[CompactionUnit.scala 158:28]
+  assign io_control_S_AXI_BVALID = controlAdapter_S_AXI_BVALID; // @[CompactionUnit.scala 159:29]
+  assign io_control_S_AXI_ARREADY = controlAdapter_S_AXI_ARREADY; // @[CompactionUnit.scala 164:30]
+  assign io_control_S_AXI_RDATA = controlAdapter_S_AXI_RDATA; // @[CompactionUnit.scala 165:28]
+  assign io_control_S_AXI_RRESP = controlAdapter_S_AXI_RRESP; // @[CompactionUnit.scala 166:28]
+  assign io_control_S_AXI_RVALID = controlAdapter_S_AXI_RVALID; // @[CompactionUnit.scala 167:29]
   assign io_encoder_axi_m_tdata = compactionUnit_io_encoder_axi_m_tdata; // @[CompactionUnit.scala 139:31]
   assign io_encoder_axi_m_tvalid = compactionUnit_io_encoder_axi_m_tvalid; // @[CompactionUnit.scala 139:31]
   assign io_encoder_axi_m_tlast = compactionUnit_io_encoder_axi_m_tlast; // @[CompactionUnit.scala 139:31]
   assign io_decoders_0_axi_s_tready = compactionUnit_io_decoders_0_axi_s_tready; // @[CompactionUnit.scala 138:32]
   assign io_decoders_1_axi_s_tready = compactionUnit_io_decoders_1_axi_s_tready; // @[CompactionUnit.scala 138:32]
   assign controlAdapter_status = {31'h0,compactionUnit_io_control_busy}; // @[Cat.scala 33:92]
-  assign controlAdapter_axi_S_AXI_ACLK = io_control_S_AXI_ACLK; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_ARESETN = io_control_S_AXI_ARESETN; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_AWADDR = io_control_S_AXI_AWADDR; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_AWPROT = io_control_S_AXI_AWPROT; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_AWVALID = io_control_S_AXI_AWVALID; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_WDATA = io_control_S_AXI_WDATA; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_WSTRB = io_control_S_AXI_WSTRB; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_WVALID = io_control_S_AXI_WVALID; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_BREADY = io_control_S_AXI_BREADY; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_ARADDR = io_control_S_AXI_ARADDR; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_ARPROT = io_control_S_AXI_ARPROT; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_ARVALID = io_control_S_AXI_ARVALID; // @[CompactionUnit.scala 145:27]
-  assign controlAdapter_axi_S_AXI_RREADY = io_control_S_AXI_RREADY; // @[CompactionUnit.scala 145:27]
+  assign controlAdapter_S_AXI_ACLK = io_control_S_AXI_ACLK; // @[CompactionUnit.scala 148:34]
+  assign controlAdapter_S_AXI_ARESETN = io_control_S_AXI_ARESETN; // @[CompactionUnit.scala 149:37]
+  assign controlAdapter_S_AXI_AWADDR = io_control_S_AXI_AWADDR; // @[CompactionUnit.scala 150:36]
+  assign controlAdapter_S_AXI_AWPROT = io_control_S_AXI_AWPROT; // @[CompactionUnit.scala 151:36]
+  assign controlAdapter_S_AXI_AWVALID = io_control_S_AXI_AWVALID; // @[CompactionUnit.scala 152:37]
+  assign controlAdapter_S_AXI_WDATA = io_control_S_AXI_WDATA; // @[CompactionUnit.scala 154:35]
+  assign controlAdapter_S_AXI_WSTRB = io_control_S_AXI_WSTRB; // @[CompactionUnit.scala 155:35]
+  assign controlAdapter_S_AXI_WVALID = io_control_S_AXI_WVALID; // @[CompactionUnit.scala 156:36]
+  assign controlAdapter_S_AXI_BREADY = io_control_S_AXI_BREADY; // @[CompactionUnit.scala 160:36]
+  assign controlAdapter_S_AXI_ARADDR = io_control_S_AXI_ARADDR; // @[CompactionUnit.scala 161:36]
+  assign controlAdapter_S_AXI_ARPROT = io_control_S_AXI_ARPROT; // @[CompactionUnit.scala 162:36]
+  assign controlAdapter_S_AXI_ARVALID = io_control_S_AXI_ARVALID; // @[CompactionUnit.scala 163:37]
+  assign controlAdapter_S_AXI_RREADY = io_control_S_AXI_RREADY; // @[CompactionUnit.scala 168:36]
   assign compactionUnit_clock = clock;
   assign compactionUnit_reset = reset;
   assign compactionUnit_io_control_start = controlAdapter_control[0]; // @[CompactionUnit.scala 142:48]

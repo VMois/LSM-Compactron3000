@@ -117,7 +117,7 @@ class CompactionUnit(busWidth: Int, numberOfBuffers: Int) extends Module {
 
 
 class TopCompactionUnitIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
-    val control = new AxiIO
+    val control = new Bundle with AxiIO
     val encoder = new EncoderOutputIO(busWidth)
     val decoders = Vec(numberOfBuffers, new DecoderInputIO(busWidth))
 }
@@ -142,7 +142,31 @@ class TopCompactionUnit(busWidth: Int, numberOfBuffers: Int) extends Module {
     val startSignal = controlAdapter.io.control(0)
     compactionUnit.io.control.start := startSignal
     controlAdapter.io.status := Cat(0.U((busWidth - 1).W), compactionUnit.io.control.busy)
-    controlAdapter.io.axi <> io.control
+
+    // Map AXI Lite signals one by one
+    // Not great but this is only solution that works for now
+    controlAdapter.io.S_AXI_ACLK := io.control.S_AXI_ACLK
+    controlAdapter.io.S_AXI_ARESETN := io.control.S_AXI_ARESETN
+    controlAdapter.io.S_AXI_AWADDR := io.control.S_AXI_AWADDR
+    controlAdapter.io.S_AXI_AWPROT := io.control.S_AXI_AWPROT
+    controlAdapter.io.S_AXI_AWVALID := io.control.S_AXI_AWVALID
+    io.control.S_AXI_AWREADY := controlAdapter.io.S_AXI_AWREADY
+    controlAdapter.io.S_AXI_WDATA := io.control.S_AXI_WDATA
+    controlAdapter.io.S_AXI_WSTRB := io.control.S_AXI_WSTRB
+    controlAdapter.io.S_AXI_WVALID := io.control.S_AXI_WVALID
+    io.control.S_AXI_WREADY := controlAdapter.io.S_AXI_WREADY
+    io.control.S_AXI_BRESP := controlAdapter.io.S_AXI_BRESP
+    io.control.S_AXI_BVALID := controlAdapter.io.S_AXI_BVALID
+    controlAdapter.io.S_AXI_BREADY := io.control.S_AXI_BREADY
+    controlAdapter.io.S_AXI_ARADDR := io.control.S_AXI_ARADDR
+    controlAdapter.io.S_AXI_ARPROT := io.control.S_AXI_ARPROT
+    controlAdapter.io.S_AXI_ARVALID := io.control.S_AXI_ARVALID
+    io.control.S_AXI_ARREADY := controlAdapter.io.S_AXI_ARREADY
+    io.control.S_AXI_RDATA := controlAdapter.io.S_AXI_RDATA
+    io.control.S_AXI_RRESP := controlAdapter.io.S_AXI_RRESP
+    io.control.S_AXI_RVALID := controlAdapter.io.S_AXI_RVALID
+    controlAdapter.io.S_AXI_RREADY := io.control.S_AXI_RREADY
+
 }
 
 object TopCompactionUnit extends App {
