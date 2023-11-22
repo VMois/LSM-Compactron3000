@@ -283,7 +283,7 @@ module KVRingBuffer(
   reg [31:0] _RAND_15;
   reg [31:0] _RAND_16;
 `endif // RANDOMIZE_REG_INIT
-  (* ram_style = "block" *) reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
+  reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
   wire  mem_data_en; // @[KvRingBuffer.scala 103:26 204:{24,24} 103:26]
   reg [13:0] mem_data_addr; // @[KvRingBuffer.scala 103:26]
   wire [31:0] mem_data_data; // @[KvRingBuffer.scala 103:26]
@@ -1074,7 +1074,7 @@ module KeyBuffer(
   reg [31:0] _RAND_11;
   reg [31:0] _RAND_12;
 `endif // RANDOMIZE_REG_INIT
-  (* ram_style = "block" *) reg [31:0] mem [0:15]; // @[KeyBuffer.scala 32:26]
+  reg [31:0] mem [0:15]; // @[KeyBuffer.scala 32:26]
   wire  mem_data_en; // @[KeyBuffer.scala 32:26 94:{24,24} 32:26]
   reg [3:0] mem_data_addr; // @[KeyBuffer.scala 32:26]
   wire [31:0] mem_data_data; // @[KeyBuffer.scala 32:26]
@@ -1412,28 +1412,30 @@ module Merger(
   reg [31:0] _RAND_3;
   reg [31:0] _RAND_4;
   reg [31:0] _RAND_5;
+  reg [31:0] _RAND_6;
 `endif // RANDOMIZE_REG_INIT
-  wire [31:0] keyChunksComparator_io_in_0; // @[Merger.scala 71:37]
-  wire [31:0] keyChunksComparator_io_in_1; // @[Merger.scala 71:37]
-  wire [1:0] keyChunksComparator_io_maskIn; // @[Merger.scala 71:37]
-  wire  keyChunksComparator_io_lastChunksMask_0; // @[Merger.scala 71:37]
-  wire  keyChunksComparator_io_lastChunksMask_1; // @[Merger.scala 71:37]
-  wire [1:0] keyChunksComparator_io_maskOut; // @[Merger.scala 71:37]
-  wire  keyChunksComparator_io_haveWinner; // @[Merger.scala 71:37]
-  wire  keyChunksComparator_io_winnerIndex; // @[Merger.scala 71:37]
+  wire [31:0] keyChunksComparator_io_in_0; // @[Merger.scala 72:37]
+  wire [31:0] keyChunksComparator_io_in_1; // @[Merger.scala 72:37]
+  wire [1:0] keyChunksComparator_io_maskIn; // @[Merger.scala 72:37]
+  wire  keyChunksComparator_io_lastChunksMask_0; // @[Merger.scala 72:37]
+  wire  keyChunksComparator_io_lastChunksMask_1; // @[Merger.scala 72:37]
+  wire [1:0] keyChunksComparator_io_maskOut; // @[Merger.scala 72:37]
+  wire  keyChunksComparator_io_haveWinner; // @[Merger.scala 72:37]
+  wire  keyChunksComparator_io_winnerIndex; // @[Merger.scala 72:37]
   reg [31:0] keyChunks_0; // @[Merger.scala 60:24]
   reg [31:0] keyChunks_1; // @[Merger.scala 60:24]
   reg  lastKeyChunks_0; // @[Merger.scala 61:32]
   reg  lastKeyChunks_1; // @[Merger.scala 61:32]
   reg  state; // @[Merger.scala 64:24]
   reg [1:0] mask; // @[Merger.scala 67:23]
-  wire  isLastRowChunkLoaded = io_bufferInputSelect & io_enq_valid; // @[Merger.scala 69:81]
-  wire  _keyChunksComparator_io_in_1_T_1 = io_enq_valid & io_bufferInputSelect; // @[Merger.scala 79:62]
-  wire  _GEN_3 = io_bufferInputSelect ? lastKeyChunks_1 : lastKeyChunks_0; // @[Merger.scala 94:{23,23}]
-  wire  _GEN_4 = ~io_bufferInputSelect ? io_lastInput : lastKeyChunks_0; // @[Merger.scala 61:32 95:{57,57}]
-  wire  _GEN_5 = io_bufferInputSelect ? io_lastInput : lastKeyChunks_1; // @[Merger.scala 61:32 95:{57,57}]
-  wire  _GEN_12 = io_control_haveWinner | state; // @[Merger.scala 101:46 102:27 64:24]
-  KeyChunksComparator keyChunksComparator ( // @[Merger.scala 71:37]
+  reg  winnerIndexReg; // @[Merger.scala 68:33]
+  wire  isLastRowChunkLoaded = io_bufferInputSelect & io_enq_valid; // @[Merger.scala 70:81]
+  wire  _keyChunksComparator_io_in_1_T_1 = io_enq_valid & io_bufferInputSelect; // @[Merger.scala 80:62]
+  wire  _GEN_3 = io_bufferInputSelect ? lastKeyChunks_1 : lastKeyChunks_0; // @[Merger.scala 95:{23,23}]
+  wire  _GEN_4 = ~io_bufferInputSelect ? io_lastInput : lastKeyChunks_0; // @[Merger.scala 61:32 96:{57,57}]
+  wire  _GEN_5 = io_bufferInputSelect ? io_lastInput : lastKeyChunks_1; // @[Merger.scala 61:32 96:{57,57}]
+  wire  _GEN_12 = keyChunksComparator_io_haveWinner | state; // @[Merger.scala 102:58 103:27 64:24]
+  KeyChunksComparator keyChunksComparator ( // @[Merger.scala 72:37]
     .io_in_0(keyChunksComparator_io_in_0),
     .io_in_1(keyChunksComparator_io_in_1),
     .io_maskIn(keyChunksComparator_io_maskIn),
@@ -1443,70 +1445,83 @@ module Merger(
     .io_haveWinner(keyChunksComparator_io_haveWinner),
     .io_winnerIndex(keyChunksComparator_io_winnerIndex)
   );
-  assign io_enq_ready = ~state; // @[Merger.scala 122:27]
-  assign io_control_isResultValid = state | isLastRowChunkLoaded; // @[Merger.scala 118:36]
-  assign io_control_haveWinner = state | keyChunksComparator_io_haveWinner; // @[Merger.scala 119:33]
-  assign io_control_winnerIndex = keyChunksComparator_io_winnerIndex; // @[Merger.scala 121:28]
-  assign io_control_nextKvPairsToLoad_0 = keyChunksComparator_io_maskOut[0]; // @[Merger.scala 120:68]
-  assign io_control_nextKvPairsToLoad_1 = keyChunksComparator_io_maskOut[1]; // @[Merger.scala 120:68]
-  assign keyChunksComparator_io_in_0 = keyChunks_0; // @[Merger.scala 82:42]
-  assign keyChunksComparator_io_in_1 = io_enq_valid & io_bufferInputSelect ? io_enq_bits : keyChunks_1; // @[Merger.scala 79:48]
-  assign keyChunksComparator_io_maskIn = mask; // @[Merger.scala 72:35]
-  assign keyChunksComparator_io_lastChunksMask_0 = lastKeyChunks_0; // @[Merger.scala 83:54]
-  assign keyChunksComparator_io_lastChunksMask_1 = _keyChunksComparator_io_in_1_T_1 ? io_lastInput : lastKeyChunks_1; // @[Merger.scala 80:60]
+  assign io_enq_ready = ~state; // @[Merger.scala 125:27]
+  assign io_control_isResultValid = state; // @[Merger.scala 121:39]
+  assign io_control_haveWinner = state; // @[Merger.scala 122:36]
+  assign io_control_winnerIndex = winnerIndexReg; // @[Merger.scala 124:28]
+  assign io_control_nextKvPairsToLoad_0 = mask[0]; // @[Merger.scala 123:42]
+  assign io_control_nextKvPairsToLoad_1 = mask[1]; // @[Merger.scala 123:42]
+  assign keyChunksComparator_io_in_0 = keyChunks_0; // @[Merger.scala 83:42]
+  assign keyChunksComparator_io_in_1 = io_enq_valid & io_bufferInputSelect ? io_enq_bits : keyChunks_1; // @[Merger.scala 80:48]
+  assign keyChunksComparator_io_maskIn = mask; // @[Merger.scala 73:35]
+  assign keyChunksComparator_io_lastChunksMask_0 = lastKeyChunks_0; // @[Merger.scala 84:54]
+  assign keyChunksComparator_io_lastChunksMask_1 = _keyChunksComparator_io_in_1_T_1 ? io_lastInput : lastKeyChunks_1; // @[Merger.scala 81:60]
   always @(posedge clock) begin
-    if (~state) begin // @[Merger.scala 87:20]
-      if (io_enq_valid) begin // @[Merger.scala 89:33]
-        if (~io_bufferInputSelect) begin // @[Merger.scala 90:49]
-          keyChunks_0 <= io_enq_bits; // @[Merger.scala 90:49]
+    if (~state) begin // @[Merger.scala 88:20]
+      if (io_enq_valid) begin // @[Merger.scala 90:33]
+        if (~io_bufferInputSelect) begin // @[Merger.scala 91:49]
+          keyChunks_0 <= io_enq_bits; // @[Merger.scala 91:49]
         end
       end
     end
-    if (~state) begin // @[Merger.scala 87:20]
-      if (io_enq_valid) begin // @[Merger.scala 89:33]
-        if (io_bufferInputSelect) begin // @[Merger.scala 90:49]
-          keyChunks_1 <= io_enq_bits; // @[Merger.scala 90:49]
+    if (~state) begin // @[Merger.scala 88:20]
+      if (io_enq_valid) begin // @[Merger.scala 90:33]
+        if (io_bufferInputSelect) begin // @[Merger.scala 91:49]
+          keyChunks_1 <= io_enq_bits; // @[Merger.scala 91:49]
         end
       end
     end
     if (reset) begin // @[Merger.scala 61:32]
       lastKeyChunks_0 <= 1'h0; // @[Merger.scala 61:32]
-    end else if (~state) begin // @[Merger.scala 87:20]
-      if (io_enq_valid) begin // @[Merger.scala 89:33]
-        if (~_GEN_3) begin // @[Merger.scala 94:61]
+    end else if (~state) begin // @[Merger.scala 88:20]
+      if (io_enq_valid) begin // @[Merger.scala 90:33]
+        if (~_GEN_3) begin // @[Merger.scala 95:61]
           lastKeyChunks_0 <= _GEN_4;
         end
       end
     end
     if (reset) begin // @[Merger.scala 61:32]
       lastKeyChunks_1 <= 1'h0; // @[Merger.scala 61:32]
-    end else if (~state) begin // @[Merger.scala 87:20]
-      if (io_enq_valid) begin // @[Merger.scala 89:33]
-        if (~_GEN_3) begin // @[Merger.scala 94:61]
+    end else if (~state) begin // @[Merger.scala 88:20]
+      if (io_enq_valid) begin // @[Merger.scala 90:33]
+        if (~_GEN_3) begin // @[Merger.scala 95:61]
           lastKeyChunks_1 <= _GEN_5;
         end
       end
     end
     if (reset) begin // @[Merger.scala 64:24]
       state <= 1'h0; // @[Merger.scala 64:24]
-    end else if (~state) begin // @[Merger.scala 87:20]
-      if (isLastRowChunkLoaded) begin // @[Merger.scala 99:41]
+    end else if (~state) begin // @[Merger.scala 88:20]
+      if (isLastRowChunkLoaded) begin // @[Merger.scala 100:41]
         state <= _GEN_12;
       end
-    end else if (state) begin // @[Merger.scala 87:20]
-      if (io_control_reset) begin // @[Merger.scala 108:37]
-        state <= 1'h0; // @[Merger.scala 110:23]
+    end else if (state) begin // @[Merger.scala 88:20]
+      if (io_control_reset) begin // @[Merger.scala 110:37]
+        state <= 1'h0; // @[Merger.scala 113:23]
       end
     end
     if (reset) begin // @[Merger.scala 67:23]
       mask <= 2'h3; // @[Merger.scala 67:23]
-    end else if (~state) begin // @[Merger.scala 87:20]
-      if (isLastRowChunkLoaded) begin // @[Merger.scala 99:41]
-        mask <= keyChunksComparator_io_maskOut; // @[Merger.scala 100:22]
+    end else if (~state) begin // @[Merger.scala 88:20]
+      if (isLastRowChunkLoaded) begin // @[Merger.scala 100:41]
+        mask <= keyChunksComparator_io_maskOut; // @[Merger.scala 101:22]
       end
-    end else if (state) begin // @[Merger.scala 87:20]
-      if (io_control_reset) begin // @[Merger.scala 108:37]
-        mask <= io_control_mask; // @[Merger.scala 109:22]
+    end else if (state) begin // @[Merger.scala 88:20]
+      if (io_control_reset) begin // @[Merger.scala 110:37]
+        mask <= io_control_mask; // @[Merger.scala 111:22]
+      end
+    end
+    if (reset) begin // @[Merger.scala 68:33]
+      winnerIndexReg <= 1'h0; // @[Merger.scala 68:33]
+    end else if (~state) begin // @[Merger.scala 88:20]
+      if (isLastRowChunkLoaded) begin // @[Merger.scala 100:41]
+        if (keyChunksComparator_io_haveWinner) begin // @[Merger.scala 102:58]
+          winnerIndexReg <= keyChunksComparator_io_winnerIndex; // @[Merger.scala 104:36]
+        end
+      end
+    end else if (state) begin // @[Merger.scala 88:20]
+      if (io_control_reset) begin // @[Merger.scala 110:37]
+        winnerIndexReg <= 1'h0; // @[Merger.scala 112:32]
       end
     end
   end
@@ -1558,6 +1573,8 @@ initial begin
   state = _RAND_4[0:0];
   _RAND_5 = {1{`RANDOM}};
   mask = _RAND_5[1:0];
+  _RAND_6 = {1{`RANDOM}};
+  winnerIndexReg = _RAND_6[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -1604,7 +1621,7 @@ module KVRingBuffer_2(
   reg [31:0] _RAND_15;
   reg [31:0] _RAND_16;
 `endif // RANDOMIZE_REG_INIT
-  (* ram_style = "block" *) reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
+  reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
   wire  mem_data_en; // @[KvRingBuffer.scala 103:26 204:{24,24} 103:26]
   reg [13:0] mem_data_addr; // @[KvRingBuffer.scala 103:26]
   wire [31:0] mem_data_data; // @[KvRingBuffer.scala 103:26]

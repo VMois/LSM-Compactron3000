@@ -65,6 +65,7 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
 
     // default value for mask is all ones, which means that all buffers are included in the comparison
     val mask = RegInit(((1 << numberOfBuffers) - 1).U(numberOfBuffers.W))
+    val winnerIndexReg = RegInit(0.U(log2Ceil(numberOfBuffers).W))
 
     val isLastRowChunkLoaded = io.bufferInputSelect === (numberOfBuffers - 1).U && io.enq.valid
 
@@ -98,8 +99,9 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
 
             when (isLastRowChunkLoaded) {
                 mask := keyChunksComparator.io.maskOut
-                when (io.control.haveWinner) {
+                when (keyChunksComparator.io.haveWinner) {
                     state := haveWinner
+                    winnerIndexReg := keyChunksComparator.io.winnerIndex
                 }
             }
         }
@@ -107,17 +109,18 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
         is(haveWinner) {
             when (io.control.reset) {
                 mask := io.control.mask
+                winnerIndexReg := 0.U
                 state := comparingKeyChunks
             }
         }
     }
     
-    // isResultValid is important because io.haveWinner can be true/false
-    // when a new key chunks are loaded one by one, but only when all of them are ready
-    // we can say that the io.haveWinner result is valid
-    io.control.isResultValid := Mux(state === haveWinner, true.B, isLastRowChunkLoaded)
-    io.control.haveWinner := Mux(state === haveWinner, true.B, keyChunksComparator.io.haveWinner)
-    io.control.nextKvPairsToLoad := keyChunksComparator.io.maskOut.asBools
-    io.control.winnerIndex := keyChunksComparator.io.winnerIndex
+    // TODO: isResultValid might not be needed here.
+    //       Before it was required as we directly connected inputs to KeyChunksComparator.
+    //       Now we are using registers, so it might not be needed.
+    io.control.isResultValid := state === haveWinner
+    io.control.haveWinner := state === haveWinner
+    io.control.nextKvPairsToLoad := mask.asBools
+    io.control.winnerIndex := winnerIndexReg
     io.enq.ready := state === comparingKeyChunks
 }
