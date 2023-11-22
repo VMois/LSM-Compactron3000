@@ -33,12 +33,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
@@ -58,12 +53,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
@@ -83,24 +73,21 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(true.B)
-                    dut.io.control.winnerIndex.expect(2.U)
-                    dut.io.control.nextKvPairsToLoad(0).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(1).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(2).expect(true.B)
-                    dut.io.control.nextKvPairsToLoad(3).expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
-
+                dut.io.control.haveWinner.expect(false.B)
                 dut.clock.step()
             }
 
+            dut.io.enq.ready.expect(false.B)
+            dut.io.control.haveWinner.expect(true.B)
+            dut.io.control.winnerIndex.expect(2.U)
+            dut.io.control.nextKvPairsToLoad(0).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(1).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(2).expect(true.B)
+            dut.io.control.nextKvPairsToLoad(3).expect(false.B)
+            dut.clock.step()
+
             // Output winning results until module is reset
             dut.io.enq.ready.expect(false.B)
-            dut.io.control.isResultValid.expect(true.B)
             dut.io.control.haveWinner.expect(true.B)
             dut.io.control.winnerIndex.expect(2.U)
             dut.io.control.nextKvPairsToLoad(0).expect(false.B)
@@ -133,12 +120,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
@@ -158,12 +140,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
@@ -183,20 +160,17 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(true.B)
-                    dut.io.control.winnerIndex.expect(1.U)
-                    dut.io.control.nextKvPairsToLoad(0).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(1).expect(true.B)
-                    dut.io.control.nextKvPairsToLoad(2).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(3).expect(true.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
-
+                dut.io.control.haveWinner.expect(false.B)
                 dut.clock.step()
             }
+            
+            dut.io.control.haveWinner.expect(true.B)
+            dut.io.control.winnerIndex.expect(1.U)
+            dut.io.control.nextKvPairsToLoad(0).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(1).expect(true.B)
+            dut.io.control.nextKvPairsToLoad(2).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(3).expect(true.B)
+
         }
     }
 
@@ -222,12 +196,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
@@ -246,20 +215,19 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(true.B)
-                    dut.io.control.winnerIndex.expect(2.U)
-                    dut.io.control.nextKvPairsToLoad(0).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(1).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(2).expect(true.B)
-                    dut.io.control.nextKvPairsToLoad(3).expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
+
+            dut.io.enq.ready.expect(false.B)
+            dut.io.control.haveWinner.expect(true.B)
+            dut.io.control.winnerIndex.expect(2.U)
+            dut.io.control.nextKvPairsToLoad(0).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(1).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(2).expect(true.B)
+            dut.io.control.nextKvPairsToLoad(3).expect(false.B)
+            dut.clock.step()
 
             dut.io.enq.valid.poke(false.B)
             dut.io.enq.ready.expect(false.B)
@@ -291,12 +259,7 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
 
                 dut.clock.step()
             }
@@ -315,19 +278,19 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.bufferInputSelect.poke(i.U)
                 dut.io.lastInput.poke(input.lastInput.B)
 
-                if (i == 3) {
-                    dut.io.control.isResultValid.expect(true.B)
-                    dut.io.control.haveWinner.expect(true.B)
-                    dut.io.control.winnerIndex.expect(1.U)
-                    dut.io.control.nextKvPairsToLoad(0).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(1).expect(true.B)
-                    dut.io.control.nextKvPairsToLoad(2).expect(false.B)
-                    dut.io.control.nextKvPairsToLoad(3).expect(false.B)
-                } else {
-                    dut.io.control.isResultValid.expect(false.B)
-                }
+                dut.io.control.haveWinner.expect(false.B)
                 dut.clock.step()
             }
+
+            dut.io.enq.ready.expect(false.B)
+            dut.io.control.haveWinner.expect(true.B)
+            dut.io.control.winnerIndex.expect(1.U)
+            dut.io.control.nextKvPairsToLoad(0).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(1).expect(true.B)
+            dut.io.control.nextKvPairsToLoad(2).expect(false.B)
+            dut.io.control.nextKvPairsToLoad(3).expect(false.B)
+
+            dut.clock.step()
 
             dut.io.enq.ready.expect(false.B)
             dut.io.control.isResultValid.expect(true.B)
