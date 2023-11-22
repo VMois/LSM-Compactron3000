@@ -283,7 +283,7 @@ module KVRingBuffer(
   reg [31:0] _RAND_15;
   reg [31:0] _RAND_16;
 `endif // RANDOMIZE_REG_INIT
-  reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
+  (* ram_style = "block" *) reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
   wire  mem_data_en; // @[KvRingBuffer.scala 103:26 204:{24,24} 103:26]
   reg [13:0] mem_data_addr; // @[KvRingBuffer.scala 103:26]
   wire [31:0] mem_data_data; // @[KvRingBuffer.scala 103:26]
@@ -1074,7 +1074,7 @@ module KeyBuffer(
   reg [31:0] _RAND_11;
   reg [31:0] _RAND_12;
 `endif // RANDOMIZE_REG_INIT
-  reg [31:0] mem [0:15]; // @[KeyBuffer.scala 32:26]
+  (* ram_style = "block" *) reg [31:0] mem [0:15]; // @[KeyBuffer.scala 32:26]
   wire  mem_data_en; // @[KeyBuffer.scala 32:26 94:{24,24} 32:26]
   reg [3:0] mem_data_addr; // @[KeyBuffer.scala 32:26]
   wire [31:0] mem_data_data; // @[KeyBuffer.scala 32:26]
@@ -1604,7 +1604,7 @@ module KVRingBuffer_2(
   reg [31:0] _RAND_15;
   reg [31:0] _RAND_16;
 `endif // RANDOMIZE_REG_INIT
-  reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
+  (* ram_style = "block" *) reg [31:0] mem [0:10943]; // @[KvRingBuffer.scala 103:26]
   wire  mem_data_en; // @[KvRingBuffer.scala 103:26 204:{24,24} 103:26]
   reg [13:0] mem_data_addr; // @[KvRingBuffer.scala 103:26]
   wire [31:0] mem_data_data; // @[KvRingBuffer.scala 103:26]
