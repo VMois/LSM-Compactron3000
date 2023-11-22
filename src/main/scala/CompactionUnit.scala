@@ -14,18 +14,23 @@ class CompactionUnitIO(busWidth: Int, numberOfBuffers: Int) extends Bundle {
 class CompactionUnit(busWidth: Int, numberOfBuffers: Int) extends Module {
     val io = IO(new CompactionUnitIO(busWidth, numberOfBuffers))
 
+    val bufferDepth = 9
+    val maxKeySizeBits = 256
+    val maxValueSizeBits = 896
+    val maxMetadataSizeBits = 64
+
     // Init all modules
     val encoder = Module(new DummyEncoder(busWidth))
     val decoders = Array.fill(numberOfBuffers) { 
         Module(new DummyDecoder(busWidth))
     }
     val inputBuffers = Array.fill(numberOfBuffers) { 
-        Module(new KVRingBuffer(depth = 18, busWidth = busWidth, keySize = 256, valueSize = 1792, metadataSize = 256))
+        Module(new KVRingBuffer(depth = bufferDepth, busWidth = busWidth, keySize = maxKeySizeBits, valueSize = maxValueSizeBits, metadataSize = maxMetadataSizeBits))
     }
     val kvTransfer = Module(new TopKvTransfer(busWidth, numberOfBuffers))
-    val keyBuffer = Module(new KeyBuffer(busWidth, numberOfBuffers, maximumKeySize = 256))
+    val keyBuffer = Module(new KeyBuffer(busWidth, numberOfBuffers, maximumKeySize = maxKeySizeBits))
     val merger = Module(new Merger(busWidth, numberOfBuffers))
-    val outputBuffer = Module(new KVRingBuffer(depth = 18, busWidth = busWidth, keySize = 256, valueSize = 1792, metadataSize = 256, autoReadNextPair = true))
+    val outputBuffer = Module(new KVRingBuffer(depth = bufferDepth, busWidth = busWidth, keySize = maxKeySizeBits, valueSize = maxValueSizeBits, metadataSize = maxMetadataSizeBits, autoReadNextPair = true))
     val controller = Module(new Controller(numberOfBuffers))
 
     // Connect encoder to output buffer
