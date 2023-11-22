@@ -3,7 +3,7 @@ package compaction_unit
 import chisel3._
 import chisel3.util.HasBlackBoxResource
 
-class AxiIO extends Bundle {
+trait AxiIO extends Bundle {
     val S_AXI_ACLK = Input(Bool())
     val S_AXI_ARESETN = Input(Bool())
     val S_AXI_AWADDR = Input(UInt(4.W))
@@ -35,8 +35,6 @@ trait ExternalControllerSignals extends Bundle {
 
 
 class ControlAdapterVerilog extends BlackBox with HasBlackBoxResource {
-    val io = IO(new Bundle with ExternalControllerSignals {
-        val axi = new AxiIO
-    })
+    val io = IO(new Bundle with ExternalControllerSignals with AxiIO)
     addResource("/control_adapter_axi_lite_s.v")
 }
