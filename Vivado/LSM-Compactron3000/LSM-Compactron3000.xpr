@@ -95,8 +95,11 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_DummyKvPairFifo_0_2/dmaSuperSystem_DummyKvPairFifo_0_2.xci">
-          <Proxy FileSetName="dmaSuperSystem_DummyKvPairFifo_0_2"/>
+        <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_axi_dma_0_0/dmaSuperSystem_axi_dma_0_0.xci">
+          <Proxy FileSetName="dmaSuperSystem_axi_dma_0_0"/>
+        </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_xbar_1/dmaSuperSystem_xbar_1.xci">
+          <Proxy FileSetName="dmaSuperSystem_xbar_1"/>
         </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_util_vector_logic_0_0/dmaSuperSystem_util_vector_logic_0_0.xci">
           <Proxy FileSetName="dmaSuperSystem_util_vector_logic_0_0"/>
@@ -104,8 +107,11 @@
         <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_processing_system7_0_0/dmaSuperSystem_processing_system7_0_0.xci">
           <Proxy FileSetName="dmaSuperSystem_processing_system7_0_0"/>
         </CompFileExtendedInfo>
-        <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_axi_dma_0_0/dmaSuperSystem_axi_dma_0_0.xci">
-          <Proxy FileSetName="dmaSuperSystem_axi_dma_0_0"/>
+        <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_axi_dma_1_0/dmaSuperSystem_axi_dma_1_0.xci">
+          <Proxy FileSetName="dmaSuperSystem_axi_dma_1_0"/>
+        </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_CompactionUnit_0_0/dmaSuperSystem_CompactionUnit_0_0.xci">
+          <Proxy FileSetName="dmaSuperSystem_CompactionUnit_0_0"/>
         </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_xbar_0/dmaSuperSystem_xbar_0.xci">
           <Proxy FileSetName="dmaSuperSystem_xbar_0"/>
@@ -113,13 +119,6 @@
         <CompFileExtendedInfo CompFileName="dmaSuperSystem.bd" FileRelPathName="ip/dmaSuperSystem_rst_ps7_0_100M_0/dmaSuperSystem_rst_ps7_0_100M_0.xci">
           <Proxy FileSetName="dmaSuperSystem_rst_ps7_0_100M_0"/>
         </CompFileExtendedInfo>
-      </File>
-      <File Path="$PGENDIR/sources_1/bd/dmaSuperSystem/hdl/dmaSuperSystem_wrapper.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
       </File>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
@@ -137,8 +136,6 @@
       <Filter Type="Srcs"/>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
-        <Option Name="TopModule" Val="dmaSuperSystem_wrapper"/>
-        <Option Name="TopLib" Val="xil_defaultlib"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
         <Option Name="TransportPathDelay" Val="0"/>
         <Option Name="TransportIntDelay" Val="0"/>
@@ -186,9 +183,21 @@
         <Option Name="UseBlackboxStub" Val="1"/>
       </Config>
     </FileSet>
-    <FileSet Name="dmaSuperSystem_DummyKvPairFifo_0_2" Type="BlockSrcs" RelSrcDir="$PSRCDIR/dmaSuperSystem_DummyKvPairFifo_0_2" RelGenDir="$PGENDIR/dmaSuperSystem_DummyKvPairFifo_0_2">
+    <FileSet Name="dmaSuperSystem_xbar_1" Type="BlockSrcs" RelSrcDir="$PSRCDIR/dmaSuperSystem_xbar_1" RelGenDir="$PGENDIR/dmaSuperSystem_xbar_1">
       <Config>
-        <Option Name="TopModule" Val="dmaSuperSystem_DummyKvPairFifo_0_2"/>
+        <Option Name="TopModule" Val="dmaSuperSystem_xbar_1"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="dmaSuperSystem_axi_dma_1_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/dmaSuperSystem_axi_dma_1_0" RelGenDir="$PGENDIR/dmaSuperSystem_axi_dma_1_0">
+      <Config>
+        <Option Name="TopModule" Val="dmaSuperSystem_axi_dma_1_0"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="dmaSuperSystem_CompactionUnit_0_0" Type="BlockSrcs" RelSrcDir="$PSRCDIR/dmaSuperSystem_CompactionUnit_0_0" RelGenDir="$PGENDIR/dmaSuperSystem_CompactionUnit_0_0">
+      <Config>
+        <Option Name="TopModule" Val="dmaSuperSystem_CompactionUnit_0_0"/>
         <Option Name="UseBlackboxStub" Val="1"/>
       </Config>
     </FileSet>
@@ -212,12 +221,13 @@
     </Simulator>
   </Simulators>
   <Runs Version="1" Minor="19">
-    <Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/synth_1">
+    <Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" State="current" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/synth_1">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022">
+          <Desc>Vivado Synthesis Defaults</Desc>
+        </StratHandle>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
@@ -242,22 +252,20 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="dmaSuperSystem_xbar_0_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_xbar_0" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_xbar_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/dmaSuperSystem_xbar_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_0_synth_1">
+    <Run Id="dmaSuperSystem_xbar_0_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_xbar_0" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_xbar_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_0_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="dmaSuperSystem_processing_system7_0_0_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_processing_system7_0_0" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_processing_system7_0_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/dmaSuperSystem_processing_system7_0_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_processing_system7_0_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_processing_system7_0_0_synth_1">
+    <Run Id="dmaSuperSystem_processing_system7_0_0_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_processing_system7_0_0" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_processing_system7_0_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_processing_system7_0_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_processing_system7_0_0_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
         <Step Id="synth_design"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
@@ -272,7 +280,27 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="dmaSuperSystem_DummyKvPairFifo_0_2_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_DummyKvPairFifo_0_2" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_DummyKvPairFifo_0_2" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/dmaSuperSystem_DummyKvPairFifo_0_2_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_DummyKvPairFifo_0_2_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_DummyKvPairFifo_0_2_synth_1">
+    <Run Id="dmaSuperSystem_xbar_1_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_xbar_1" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_xbar_1" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/dmaSuperSystem_xbar_1_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_1_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_1_synth_1">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+      <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="dmaSuperSystem_axi_dma_1_0_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_axi_dma_1_0" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_axi_dma_1_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/dmaSuperSystem_axi_dma_1_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_axi_dma_1_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_axi_dma_1_0_synth_1">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022"/>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+      <ReportStrategy Name="Vivado Synthesis Default Reports" Flow="Vivado Synthesis 2022"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="dmaSuperSystem_CompactionUnit_0_0_synth_1" Type="Ft3:Synth" SrcSet="dmaSuperSystem_CompactionUnit_0_0" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_CompactionUnit_0_0" Description="Vivado Synthesis Defaults" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" Dir="$PRUNDIR/dmaSuperSystem_CompactionUnit_0_0_synth_1" IncludeInArchive="true" IsChild="false" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_CompactionUnit_0_0_synth_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_CompactionUnit_0_0_synth_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2022">
           <Desc>Vivado Synthesis Defaults</Desc>
@@ -284,9 +312,11 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_1" SynthRun="synth_1" IncludeInArchive="true" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/impl_1">
+    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" State="current" SynthRun="synth_1" IncludeInArchive="true" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/impl_1">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022"/>
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022">
+          <Desc>Default settings for Implementation.</Desc>
+        </StratHandle>
         <Step Id="init_design"/>
         <Step Id="opt_design"/>
         <Step Id="power_opt_design"/>
@@ -297,7 +327,6 @@
         <Step Id="post_route_phys_opt_design"/>
         <Step Id="write_bitstream"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
       <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2022"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
@@ -387,7 +416,41 @@
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
       <RQSFiles/>
     </Run>
-    <Run Id="dmaSuperSystem_DummyKvPairFifo_0_2_impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_DummyKvPairFifo_0_2" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="dmaSuperSystem_DummyKvPairFifo_0_2_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_DummyKvPairFifo_0_2_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_DummyKvPairFifo_0_2_impl_1">
+    <Run Id="dmaSuperSystem_xbar_1_impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_xbar_1" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="dmaSuperSystem_xbar_1_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_1_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_xbar_1_impl_1">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022"/>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+      <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2022"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="dmaSuperSystem_axi_dma_1_0_impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_axi_dma_1_0" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="dmaSuperSystem_axi_dma_1_0_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_axi_dma_1_0_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_axi_dma_1_0_impl_1">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022"/>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+      <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2022"/>
+      <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
+      <RQSFiles/>
+    </Run>
+    <Run Id="dmaSuperSystem_CompactionUnit_0_0_impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="dmaSuperSystem_CompactionUnit_0_0" Description="Default settings for Implementation." AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" SynthRun="dmaSuperSystem_CompactionUnit_0_0_synth_1" IncludeInArchive="false" IsChild="false" GenFullBitstream="true" AutoIncrementalDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_CompactionUnit_0_0_impl_1" AutoRQSDir="$PSRCDIR/utils_1/imports/dmaSuperSystem_CompactionUnit_0_0_impl_1">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2022">
           <Desc>Default settings for Implementation.</Desc>
