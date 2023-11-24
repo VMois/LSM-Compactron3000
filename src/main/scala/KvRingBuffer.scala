@@ -190,6 +190,7 @@ class KVRingBuffer(depth: Int, busWidth: Int = 4, keySize: Int = 8, valueSize: I
     def moveReadPtr() = {
         incrRead := true.B
         emptyReg := nextRead === writePtr && ~writeIsIncoming
+        fullReg := false.B
     }
 
     val moveOrResetRequested = io.control.moveReadPtr || io.control.resetRead
