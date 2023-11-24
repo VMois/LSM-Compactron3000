@@ -111,6 +111,7 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
                 mask := io.control.mask
                 winnerIndexReg := 0.U
                 state := comparingKeyChunks
+                lastKeyChunks.foreach(_ := false.B)
             }
         }
     }
