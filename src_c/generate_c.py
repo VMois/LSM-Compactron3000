@@ -31,7 +31,7 @@ def generate_c_array(filename, array_name, sstable):
             c_file.write("\n")
 
         c_file.write("};\n")
-        c_file.write(f"int {array_name}_len = {num_u32_values};\n")
+        c_file.write(f"const int {array_name}_len = {num_u32_values};\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate C file from SSTable files.")
