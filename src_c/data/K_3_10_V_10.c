@@ -357,7 +357,7 @@ u32 file1[] = {
     0x76790000,
 
 };
-int file1_len = 305;
+const u32 file1_len = 305;
 u32 file2[] = {
     0x00030100,
     0x41416B00,
@@ -569,7 +569,7 @@ u32 file2[] = {
     0x76790000,
 
 };
-int file2_len = 179;
+const u32 file2_len = 179;
 u32 merged[] = {
     0x00030100,
     0x41416B00,
@@ -1010,4 +1010,4 @@ u32 merged[] = {
     0x76790000,
 
 };
-int merged_len = 376;
+const u32 merged_len = 376;

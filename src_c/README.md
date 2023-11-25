@@ -21,3 +21,17 @@ python merge_sstables.py buffer1_sstable.txt buffer2_sstable.txt merged.txt
 ```bash
 python generate_c.py buffer1_sstable.txt buffer2_sstable.txt merged.txt -o data.c
 ```
+
+## Information on data
+
+| Folder name  | N1 | N2 | s   |
+|--------------|----|----|-----|
+| K_3_10_V_10  | 50 | 30 | 0.6 |
+| K_3_10_V_50  | 50 | 30 | 0.6 |
+| K_3_10_V_100 | 50 | 30 | 0.6 |
+| K_10_20_V_10 | 50 | 30 | 0.6 |
+| K_10_20_V_50 | 50 | 30 | 0.6 |
+| K_10_20_V_100| 50 | 30 | 0.6 |
+| K_20_32_V_10 | 50 | 30 | 0.6 |
+| K_20_32_V_50 | 50 | 30 | 0.6 |
+| K_20_32_V_100| 50 | 30 | 0.6 |
