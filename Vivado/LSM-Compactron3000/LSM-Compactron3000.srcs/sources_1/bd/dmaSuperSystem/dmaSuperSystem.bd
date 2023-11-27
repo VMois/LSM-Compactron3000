@@ -1753,6 +1753,9 @@
           "PCW_INCLUDE_ACP_TRANS_CHECK": {
             "value": "0"
           },
+          "PCW_IRQ_F2P_MODE": {
+            "value": "DIRECT"
+          },
           "PCW_MIO_48_IOTYPE": {
             "value": "LVCMOS 3.3V"
           },
@@ -2022,6 +2025,15 @@
           },
           "PCW_S_AXI_HP0_ID_WIDTH": {
             "value": "6"
+          },
+          "PCW_S_AXI_HP1_DATA_WIDTH": {
+            "value": "64"
+          },
+          "PCW_S_AXI_HP2_DATA_WIDTH": {
+            "value": "64"
+          },
+          "PCW_S_AXI_HP3_DATA_WIDTH": {
+            "value": "64"
           },
           "PCW_TPIU_PERIPHERAL_CLKSRC": {
             "value": "External"
@@ -2821,9 +2833,9 @@
           "axi_dma_1/s_axi_lite_aclk",
           "ps7_0_axi_periph/M01_ACLK",
           "ps7_0_axi_periph/M02_ACLK",
+          "axi_mem_intercon/S02_ACLK",
           "CompactionUnit_0/clock",
-          "CompactionUnit_0/io_control_S_AXI_ACLK",
-          "axi_mem_intercon/S02_ACLK"
+          "CompactionUnit_0/io_control_S_AXI_ACLK"
         ]
       },
       "processing_system7_0_FCLK_RESET0_N": {
@@ -2848,8 +2860,8 @@
           "axi_dma_1/axi_resetn",
           "ps7_0_axi_periph/M01_ARESETN",
           "ps7_0_axi_periph/M02_ARESETN",
-          "CompactionUnit_0/io_control_S_AXI_ARESETN",
-          "axi_mem_intercon/S02_ARESETN"
+          "axi_mem_intercon/S02_ARESETN",
+          "CompactionUnit_0/io_control_S_AXI_ARESETN"
         ]
       },
       "util_vector_logic_0_Res": {
