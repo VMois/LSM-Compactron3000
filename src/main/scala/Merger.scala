@@ -67,22 +67,15 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
     val mask = RegInit(((1 << numberOfBuffers) - 1).U(numberOfBuffers.W))
     val winnerIndexReg = RegInit(0.U(log2Ceil(numberOfBuffers).W))
 
-    val isLastRowChunkLoaded = io.bufferInputSelect === (numberOfBuffers - 1).U && io.enq.valid
+    val isLastRowChunkLoadedReg = RegInit(false.B)
 
     val keyChunksComparator = Module(new KeyChunksComparator(busWidth, numberOfBuffers))
     keyChunksComparator.io.maskIn := mask
 
     // connecting inputs to combinational KeyChunksComparator module
     for (i <- 0 until numberOfBuffers) {
-        // because register takes one cycle to save result,
-        // we need to directly connect inputs for comparison
-        if (i == numberOfBuffers - 1) {
-            keyChunksComparator.io.in(i) := Mux(io.enq.valid && io.bufferInputSelect === i.U, io.enq.bits, keyChunks(i))
-            keyChunksComparator.io.lastChunksMask(i) := Mux(io.enq.valid && io.bufferInputSelect === i.U, io.lastInput, lastKeyChunks(i))
-        } else {
-            keyChunksComparator.io.in(i) := keyChunks(i)
-            keyChunksComparator.io.lastChunksMask(i) := lastKeyChunks(i)
-        }
+        keyChunksComparator.io.in(i) := keyChunks(i)
+        keyChunksComparator.io.lastChunksMask(i) := lastKeyChunks(i)
     }
 
     switch (state) {
@@ -95,13 +88,19 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
                 when (~lastKeyChunks(io.bufferInputSelect)) {
                     lastKeyChunks(io.bufferInputSelect) := io.lastInput
                 }
+
+                when (io.bufferInputSelect === (numberOfBuffers - 1).U) {
+                    isLastRowChunkLoadedReg := true.B
+                }
             }
 
-            when (isLastRowChunkLoaded) {
+            when (isLastRowChunkLoadedReg) {
                 mask := keyChunksComparator.io.maskOut
                 when (keyChunksComparator.io.haveWinner) {
                     state := haveWinner
                     winnerIndexReg := keyChunksComparator.io.winnerIndex
+                } .otherwise {
+                    isLastRowChunkLoadedReg := false.B
                 }
             }
         }
@@ -112,6 +111,7 @@ class Merger(busWidth: Int, numberOfBuffers: Int) extends Module {
                 winnerIndexReg := 0.U
                 state := comparingKeyChunks
                 lastKeyChunks.foreach(_ := false.B)
+                isLastRowChunkLoadedReg := false.B
             }
         }
     }

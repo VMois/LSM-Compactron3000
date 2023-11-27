@@ -77,6 +77,11 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.clock.step()
             }
 
+            dut.io.enq.ready.expect(true.B)
+            dut.io.control.haveWinner.expect(false.B)
+
+            dut.clock.step()
+
             dut.io.enq.ready.expect(false.B)
             dut.io.control.haveWinner.expect(true.B)
             dut.io.control.winnerIndex.expect(2.U)
@@ -164,6 +169,11 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.clock.step()
             }
             
+            dut.io.enq.ready.expect(true.B)
+            dut.io.control.haveWinner.expect(false.B)
+            dut.clock.step()
+
+            dut.io.enq.ready.expect(false.B)
             dut.io.control.haveWinner.expect(true.B)
             dut.io.control.winnerIndex.expect(1.U)
             dut.io.control.nextKvPairsToLoad(0).expect(false.B)
@@ -219,6 +229,10 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
 
                 dut.clock.step()
             }
+            
+            dut.io.enq.ready.expect(true.B)
+            dut.io.control.haveWinner.expect(false.B)
+            dut.clock.step()
 
             dut.io.enq.ready.expect(false.B)
             dut.io.control.haveWinner.expect(true.B)
@@ -281,6 +295,10 @@ class MergerSpec extends AnyFreeSpec with ChiselScalatestTester {
                 dut.io.control.haveWinner.expect(false.B)
                 dut.clock.step()
             }
+
+            dut.io.enq.ready.expect(true.B)
+            dut.io.control.haveWinner.expect(false.B)
+            dut.clock.step()
 
             dut.io.enq.ready.expect(false.B)
             dut.io.control.haveWinner.expect(true.B)
