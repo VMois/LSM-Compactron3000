@@ -1,6 +1,8 @@
 LSM-Compactron3000
 =======================
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10429384.svg)](https://doi.org/10.5281/zenodo.10429384)
+
 The first open-source FPGA-based accelerator for the background compactions in LSM-tree Key Value databases. The hardware design is described in [Chisel3](https://github.com/chipsalliance/chisel) and tested on [Zybo Zynq-7000](https://digilent.com/reference/programmable-logic/zybo/start) board. 
 
 For in-depth information on the design, please refer to the [BSc thesis](files/thesis.pdf). It explains internals of the accelerator, reasoining behind design decisions, potential design optimizations, etc.
